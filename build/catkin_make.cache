@@ -1,0 +1,2 @@
+detect_msgs:detect_ws:yolov8_ws
+-DCATKIN_DEVEL_PREFIX=/home/a/clothoid_ws/devel -DCMAKE_INSTALL_PREFIX=/home/a/clothoid_ws/install -G Unix Makefiles

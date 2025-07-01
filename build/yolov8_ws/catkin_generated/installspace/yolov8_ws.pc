@@ -1,0 +1,8 @@
+prefix=/home/a/clothoid_ws/install
+
+Name: yolov8_ws
+Description: Description of yolov8_ws
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: rospy sensor_msgs cv_bridge geometry_msgs std_msgs detect_msgs

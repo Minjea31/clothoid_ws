@@ -1,0 +1,8 @@
+prefix=/home/a/clothoid_ws/devel
+
+Name: detect_ws
+Description: Description of detect_ws
+Version: 0.0.1
+Cflags: -I/home/a/clothoid_ws/src/detect_ws/include
+Libs: -L${prefix}/lib 
+Requires: roscpp sensor_msgs std_msgs geometry_msgs visualization_msgs cv_bridge image_transport pcl_ros message_filters detect_msgs message_runtime
