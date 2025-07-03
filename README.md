@@ -2,7 +2,7 @@
 
 conda를 사용해 가상환경을 만듦
 
-conda create -n yolov8 python=3.8 -
+conda create -n yolov8 python=3.8 -y
 
 conda activate yolov8
 
