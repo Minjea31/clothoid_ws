@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(detect_msgs)
 
 find_package(catkin REQUIRED COMPONENTS
+  roscpp
   message_generation
   std_msgs
   geometry_msgs

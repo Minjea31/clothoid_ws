@@ -1,3 +1,6 @@
+// detection.h
+#pragma once
+
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <iostream>
@@ -19,22 +22,18 @@
 
 #include <std_msgs/Header.h>
 #include <sensor_msgs/Image.h>
-#include <sensor_msgs/CompressedImage.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <geometry_msgs/PolygonStamped.h>
-#include <visualization_msgs/Marker.h>
-#include <visualization_msgs/MarkerArray.h>
+#include <sensor_msgs/CompressedImage.h>
 
-#include <detect_msgs/detected_object.h>
-#include <detect_msgs/detected_array.h>
 #include <detect_msgs/Yolo_Objects.h>
-#include <detect_msgs/Objects.h>
+#include <detect_msgs/detected_array.h>
+#include <detect_msgs/detected_object.h>
 
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
-struct object_struct{
+struct object_struct {
     double x;
     double y;
     double z;
@@ -47,53 +46,43 @@ struct object_struct{
     int y_max;
 };
 
-class Object_Detection{
-private:    
+class Object_Detection {
+private:
     ros::NodeHandle nh;
-    ros::Publisher detection_image;
-    ros::Publisher detection_msg;
-    ros::Publisher cloud_filter;
-    ros::Publisher cloud_cluster;
     ros::Publisher cloud_centeroid;
-    ros::Publisher tracking_id;
-    
-    // ROS message Topic
+    ros::Publisher pub_detected;
+
     std::string lidar_topic, camera_topic, yolo_topic, frame_name;
-    
-    // LiDAR Filtering
+
     pcl::ConditionalRemoval<pcl::PointXYZI> filter;
     pcl::ConditionAnd<pcl::PointXYZI>::Ptr filter_range;
     double xMinRange, xMaxRange, yMinRange, yMaxRange, zMinRange, zMaxRange;
 
-    // Clustering Parameter
     double cluster_tolerance;
     int cluster_min;
     int cluster_max;
-    
-    // Projection Matrix, Image
+
     cv::Mat projection_matrix;
     cv::Mat camera_image;
 
-    std::vector<double> distance_list;          // Distance info
-    std::vector<double> intensity_list;         // intensity_list info
-    std::vector<cv::Point3d> lidar_points;      // 3D(X,Y,Z) info
-    std::vector<cv::Point2d> projected_list;    // 2D(u,v) info
-    
-    // function
-    void read_projection_matrix();
-    cv::Scalar scalarHSV2BGR(uchar h, uchar s, uchar v);
-    void convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yolo_msg, std_msgs::Header header);
+    std::vector<double> distance_list;
+    std::vector<double> intensity_list;
+    std::vector<cv::Point3d> lidar_points;
+    std::vector<cv::Point2d> projected_list;
 
-    // callback
-    void detectionCallback(const sensor_msgs::PointCloud2::ConstPtr& lidar_msg, 
-                           const sensor_msgs::Image::ConstPtr& camera_msg, 
-                           const detect_msgs::Yolo_Objects::ConstPtr& yolo_msg);
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr ground_filter(pcl::PointCloud<pcl::PointXYZ> cloud);
-    visualization_msgs::Marker create_text(int id, double x, double y, int counter);
     int counter;
+
+    void read_projection_matrix();
+    // <- 여기서 Header 를 참조로 받도록 수정
+    void convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yolo_msg,
+                     const std_msgs::Header& header);
+    void detectionCallback(const sensor_msgs::PointCloud2::ConstPtr& lidar_msg,
+                           const sensor_msgs::CompressedImage::ConstPtr& camera_msg,
+                           const detect_msgs::Yolo_Objects::ConstPtr& yolo_msg);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr ground_filter(pcl::PointCloud<pcl::PointXYZ> cloud);
 
 public:
     Object_Detection(ros::NodeHandle* nodeHandle);
     ~Object_Detection();
 };
+
