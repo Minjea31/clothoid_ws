@@ -35,6 +35,8 @@
     roscore
     
 ### 2번 터미널 (yolo)
+
+    conda activate clothoid
     
     roslaunch yolov8_ws yolo_detect.launch 
 

@@ -259,4 +259,3 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr Object_Detection::ground_filter(
     filtered->points.resize(cnt);
     return filtered;
 }
-

@@ -23,7 +23,7 @@
 #include <std_msgs/Header.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <sensor_msgs/CompressedImage.h>
+#include <sensor_msgs/PointCloud.h>
 
 #include <detect_msgs/Yolo_Objects.h>
 #include <detect_msgs/detected_array.h>
@@ -64,7 +64,8 @@ private:
 
     cv::Mat projection_matrix;
     cv::Mat camera_image;
-
+    
+    
     std::vector<double> distance_list;
     std::vector<double> intensity_list;
     std::vector<cv::Point3d> lidar_points;
@@ -73,6 +74,7 @@ private:
     int counter;
 
     void read_projection_matrix();
+    cv::Scalar scalarHSV2BGR(uchar h, uchar s, uchar v);
     // <- 여기서 Header 를 참조로 받도록 수정
     void convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yolo_msg,
                      const std_msgs::Header& header);
@@ -85,4 +87,3 @@ public:
     Object_Detection(ros::NodeHandle* nodeHandle);
     ~Object_Detection();
 };
-
