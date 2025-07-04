@@ -210,4 +210,3 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr Object_Detection::ground_filter(
     }
     return filtered;
 }
-
