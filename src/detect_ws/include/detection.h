@@ -18,9 +18,10 @@
 #include <pcl/filters/conditional_removal.h>
 #include <pcl/search/kdtree.h>
 #include <pcl/segmentation/extract_clusters.h>
+#include <pcl_conversions/pcl_conversions.h>  // ✅ PointCloud2 변환용
 
 #include <std_msgs/Header.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/PointCloud.h>           // ✅ 변경됨: PointCloud2 → PointCloud
 #include <sensor_msgs/CompressedImage.h>
 
 #include <detect_msgs/Yolo_Objects.h>
@@ -32,7 +33,7 @@
 class Object_Detection {
 private:
     ros::NodeHandle nh;
-    ros::Publisher  cloud_centeroid;
+    ros::Publisher  cloud_centeroid;  // ✅ 여전히 유효, 메시지 타입만 변경됨
 
     std::string lidar_topic, camera_topic, yolo_topic, frame_name;
 

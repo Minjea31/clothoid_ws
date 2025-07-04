@@ -1,13 +1,13 @@
 #include "detection.h"
 #include <sensor_msgs/CompressedImage.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/PointCloud.h> // ✅ 변경됨
 #include <pcl_conversions/pcl_conversions.h>
 
 Object_Detection::Object_Detection(ros::NodeHandle* nodeHandle) : counter(0){
     ROS_INFO("start detection");
     nh = *nodeHandle;
 
-    cloud_centeroid = nh.advertise<sensor_msgs::PointCloud2>("/cloud_centeroid", 1);
+    cloud_centeroid = nh.advertise<sensor_msgs::PointCloud>("/cloud_centeroid", 1);  // ✅ 수정
 
     nh.param<std::string>("lidar_topic",    lidar_topic,  "/livox/lidar");
     nh.param<std::string>("camera_topic",   camera_topic, "/camera/image_raw/compressed");
@@ -134,18 +134,18 @@ void Object_Detection::convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yo
 }
 
 void Object_Detection::publish_2D_pointcloud(const std::vector<cv::Point2d>& pts, const std_msgs::Header& header){
-    pcl::PointCloud<pcl::PointXYZ> cloud;
+    sensor_msgs::PointCloud cloud;
+    cloud.header = header;
+
     for (const auto& pt : pts){
-        pcl::PointXYZ p;
+        geometry_msgs::Point32 p;
         p.x = pt.x;
         p.y = pt.y;
         p.z = 0.0;
         cloud.points.push_back(p);
     }
-    sensor_msgs::PointCloud2 msg;
-    pcl::toROSMsg(cloud, msg);
-    msg.header = header;
-    cloud_centeroid.publish(msg);
+
+    cloud_centeroid.publish(cloud);
 }
 
 void Object_Detection::read_projection_matrix(){

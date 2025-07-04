@@ -15,8 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   pcl_ros
   message_filters
-  detect_msgs          # ✅ 추가
-  message_generation   # ✅ 추가
+  detect_msgs          # ✅ 메시지 패키지 사용
+  message_generation   # ✅ 메시지 생성용
 )
 
 ## Find external libraries
@@ -38,8 +38,8 @@ catkin_package(
     image_transport
     pcl_ros
     message_filters
-    detect_msgs        # ✅ 추가
-    message_runtime    # ✅ 추가
+    detect_msgs        # ✅ 메시지 런타임 사용
+    message_runtime
 )
 
 ###########
@@ -58,7 +58,7 @@ add_executable(object_detection_node
   src/detection.cpp
 )
 
-## 메시지 의존성 보장
+## Ensure message generation dependencies are built before the node
 add_dependencies(object_detection_node
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}

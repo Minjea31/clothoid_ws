@@ -20,8 +20,8 @@
   <depend>image_transport</depend>
   <depend>pcl_ros</depend>
   <depend>message_filters</depend>
-  <depend>detect_msgs</depend>           <!-- ✅ 추가 -->
-  <depend>message_runtime</depend>       <!-- ✅ 추가 -->
+  <depend>detect_msgs</depend>           <!-- ✅ 메시지 타입 사용 -->
+  <depend>message_runtime</depend>       <!-- ✅ 메시지 런타임 의존성 -->
 
   <export>
   </export>
