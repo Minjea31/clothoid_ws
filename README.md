@@ -4,7 +4,7 @@ conda를 사용해 가상환경을 만듦
 
     conda env create -f environment.yml
 
-    conda activate yolo
+    conda activate clothoid
 
 
 ### 만약 ultralystics 가 깔려있다면 삭제해야함
