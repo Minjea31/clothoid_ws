@@ -111,11 +111,9 @@ pcl/segmentation/extract_clusters.h
 -
 std_msgs/Header.h
 -
-sensor_msgs/Image.h
--
 sensor_msgs/PointCloud2.h
 -
-sensor_msgs/PointCloud.h
+sensor_msgs/CompressedImage.h
 -
 detect_msgs/Yolo_Objects.h
 -
@@ -132,16 +130,16 @@ message_filters/sync_policies/approximate_time.h
 
 /home/a/clothoid_ws/src/detect_ws/src/detection.cpp
 detection.h
--
+/home/a/clothoid_ws/src/detect_ws/src/detection.h
 detect_msgs/detected_array.h
 -
 detect_msgs/detected_object.h
 -
 sensor_msgs/CompressedImage.h
 -
-
-/home/a/clothoid_ws/src/detect_ws/src/main.cpp
-detection.h
+sensor_msgs/PointCloud2.h
+-
+pcl_conversions/pcl_conversions.h
 -
 
 /opt/ros/noetic/include/cv_bridge/cv_bridge.h
@@ -163,22 +161,6 @@ stdexcept
 -
 
 /opt/ros/noetic/include/geometry_msgs/Point.h
-string
--
-vector
--
-memory
--
-ros/types.h
--
-ros/serialization.h
--
-ros/builtin_message_traits.h
--
-ros/message_operations.h
--
-
-/opt/ros/noetic/include/geometry_msgs/Point32.h
 string
 -
 vector
@@ -1194,22 +1176,6 @@ ros/forwards.h
 
 /opt/ros/noetic/include/rosconsole/macros_generated.h
 
-/opt/ros/noetic/include/sensor_msgs/ChannelFloat32.h
-string
--
-vector
--
-memory
--
-ros/types.h
--
-ros/serialization.h
--
-ros/builtin_message_traits.h
--
-ros/message_operations.h
--
-
 /opt/ros/noetic/include/sensor_msgs/CompressedImage.h
 string
 -
@@ -1244,28 +1210,6 @@ ros/builtin_message_traits.h
 ros/message_operations.h
 -
 std_msgs/Header.h
--
-
-/opt/ros/noetic/include/sensor_msgs/PointCloud.h
-string
--
-vector
--
-memory
--
-ros/types.h
--
-ros/serialization.h
--
-ros/builtin_message_traits.h
--
-ros/message_operations.h
--
-std_msgs/Header.h
--
-geometry_msgs/Point32.h
--
-sensor_msgs/ChannelFloat32.h
 -
 
 /opt/ros/noetic/include/sensor_msgs/PointCloud2.h
