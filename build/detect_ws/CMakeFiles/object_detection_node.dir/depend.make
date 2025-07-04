@@ -3,14 +3,9 @@
 
 detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o: /home/a/clothoid_ws/devel/include/detect_msgs/Objects.h
 detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o: /home/a/clothoid_ws/devel/include/detect_msgs/Yolo_Objects.h
-detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o: /home/a/clothoid_ws/devel/include/detect_msgs/detected_array.h
-detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o: /home/a/clothoid_ws/devel/include/detect_msgs/detected_object.h
 detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o: /home/a/clothoid_ws/src/detect_ws/include/detection.h
 detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o: /home/a/clothoid_ws/src/detect_ws/src/detection.cpp
 detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o: /opt/ros/noetic/include/cv_bridge/cv_bridge.h
-detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o: /opt/ros/noetic/include/geometry_msgs/Point.h
-detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o: /opt/ros/noetic/include/geometry_msgs/Pose.h
-detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o: /opt/ros/noetic/include/geometry_msgs/Quaternion.h
 detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o: /opt/ros/noetic/include/message_filters/connection.h
 detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o: /opt/ros/noetic/include/message_filters/macros.h
 detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o: /opt/ros/noetic/include/message_filters/null_types.h
@@ -518,14 +513,9 @@ detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o: /usr/include
 
 detect_ws/CMakeFiles/object_detection_node.dir/src/main.cpp.o: /home/a/clothoid_ws/devel/include/detect_msgs/Objects.h
 detect_ws/CMakeFiles/object_detection_node.dir/src/main.cpp.o: /home/a/clothoid_ws/devel/include/detect_msgs/Yolo_Objects.h
-detect_ws/CMakeFiles/object_detection_node.dir/src/main.cpp.o: /home/a/clothoid_ws/devel/include/detect_msgs/detected_array.h
-detect_ws/CMakeFiles/object_detection_node.dir/src/main.cpp.o: /home/a/clothoid_ws/devel/include/detect_msgs/detected_object.h
 detect_ws/CMakeFiles/object_detection_node.dir/src/main.cpp.o: /home/a/clothoid_ws/src/detect_ws/include/detection.h
 detect_ws/CMakeFiles/object_detection_node.dir/src/main.cpp.o: /home/a/clothoid_ws/src/detect_ws/src/main.cpp
 detect_ws/CMakeFiles/object_detection_node.dir/src/main.cpp.o: /opt/ros/noetic/include/cv_bridge/cv_bridge.h
-detect_ws/CMakeFiles/object_detection_node.dir/src/main.cpp.o: /opt/ros/noetic/include/geometry_msgs/Point.h
-detect_ws/CMakeFiles/object_detection_node.dir/src/main.cpp.o: /opt/ros/noetic/include/geometry_msgs/Pose.h
-detect_ws/CMakeFiles/object_detection_node.dir/src/main.cpp.o: /opt/ros/noetic/include/geometry_msgs/Quaternion.h
 detect_ws/CMakeFiles/object_detection_node.dir/src/main.cpp.o: /opt/ros/noetic/include/message_filters/connection.h
 detect_ws/CMakeFiles/object_detection_node.dir/src/main.cpp.o: /opt/ros/noetic/include/message_filters/macros.h
 detect_ws/CMakeFiles/object_detection_node.dir/src/main.cpp.o: /opt/ros/noetic/include/message_filters/null_types.h

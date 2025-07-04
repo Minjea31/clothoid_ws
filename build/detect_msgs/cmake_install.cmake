@@ -41,8 +41,6 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/detect_msgs/msg" TYPE FILE FILES
     "/home/a/clothoid_ws/src/detect_msgs/msg/Objects.msg"
     "/home/a/clothoid_ws/src/detect_msgs/msg/Yolo_Objects.msg"
-    "/home/a/clothoid_ws/src/detect_msgs/msg/detected_object.msg"
-    "/home/a/clothoid_ws/src/detect_msgs/msg/detected_array.msg"
     )
 endif()
 

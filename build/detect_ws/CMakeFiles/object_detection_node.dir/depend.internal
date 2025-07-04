@@ -4,14 +4,9 @@
 detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o
  /home/a/clothoid_ws/devel/include/detect_msgs/Objects.h
  /home/a/clothoid_ws/devel/include/detect_msgs/Yolo_Objects.h
- /home/a/clothoid_ws/devel/include/detect_msgs/detected_array.h
- /home/a/clothoid_ws/devel/include/detect_msgs/detected_object.h
  /home/a/clothoid_ws/src/detect_ws/include/detection.h
  /home/a/clothoid_ws/src/detect_ws/src/detection.cpp
  /opt/ros/noetic/include/cv_bridge/cv_bridge.h
- /opt/ros/noetic/include/geometry_msgs/Point.h
- /opt/ros/noetic/include/geometry_msgs/Pose.h
- /opt/ros/noetic/include/geometry_msgs/Quaternion.h
  /opt/ros/noetic/include/message_filters/connection.h
  /opt/ros/noetic/include/message_filters/macros.h
  /opt/ros/noetic/include/message_filters/null_types.h
@@ -519,14 +514,9 @@ detect_ws/CMakeFiles/object_detection_node.dir/src/detection.cpp.o
 detect_ws/CMakeFiles/object_detection_node.dir/src/main.cpp.o
  /home/a/clothoid_ws/devel/include/detect_msgs/Objects.h
  /home/a/clothoid_ws/devel/include/detect_msgs/Yolo_Objects.h
- /home/a/clothoid_ws/devel/include/detect_msgs/detected_array.h
- /home/a/clothoid_ws/devel/include/detect_msgs/detected_object.h
  /home/a/clothoid_ws/src/detect_ws/include/detection.h
  /home/a/clothoid_ws/src/detect_ws/src/main.cpp
  /opt/ros/noetic/include/cv_bridge/cv_bridge.h
- /opt/ros/noetic/include/geometry_msgs/Point.h
- /opt/ros/noetic/include/geometry_msgs/Pose.h
- /opt/ros/noetic/include/geometry_msgs/Quaternion.h
  /opt/ros/noetic/include/message_filters/connection.h
  /opt/ros/noetic/include/message_filters/macros.h
  /opt/ros/noetic/include/message_filters/null_types.h

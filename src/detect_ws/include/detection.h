@@ -24,57 +24,45 @@
 #include <sensor_msgs/CompressedImage.h>
 
 #include <detect_msgs/Yolo_Objects.h>
-#include <detect_msgs/detected_array.h>
-#include <detect_msgs/detected_object.h>
 
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
-struct object_struct {
-    double x;
-    double y;
-    double z;
-    double u;
-    double v;
-    int    id;
-};
-
 class Object_Detection {
 private:
     ros::NodeHandle nh;
     ros::Publisher  cloud_centeroid;
-    ros::Publisher  pub_detected;
 
     std::string lidar_topic, camera_topic, yolo_topic, frame_name;
 
-    pcl::ConditionalRemoval<pcl::PointXYZI>          filter;
-    pcl::ConditionAnd<pcl::PointXYZI>::Ptr           filter_range;
+    pcl::ConditionalRemoval<pcl::PointXYZI> filter;
+    pcl::ConditionAnd<pcl::PointXYZI>::Ptr filter_range;
     double xMinRange, xMaxRange, yMinRange, yMaxRange, zMinRange, zMaxRange;
 
     double cluster_tolerance;
     int    cluster_min;
     int    cluster_max;
 
-    cv::Mat                               projection_matrix;
-    cv::Mat                               camera_image;
-    std::vector<cv::Point3d>              lidar_points;
-    std::vector<cv::Point2d>              projected_list;
-    std::vector<double>                   distance_list;
+    cv::Mat projection_matrix;
+    cv::Mat camera_image;
+    std::vector<cv::Point3d> lidar_points;
+    std::vector<cv::Point2d> projected_list;
+    std::vector<double> distance_list;
 
-    // 추가: centroid EMA smoothing을 위한 변수
-    std::vector<cv::Point2d>              prev_centroids;
+    std::vector<cv::Point2d> prev_centroids;
     bool is_first_frame = true;
     double alpha = 0.3;
-
-    int counter;
-
+    
+    int counter;  
+    
     void read_projection_matrix();
     void detectionCallback(const sensor_msgs::PointCloud2::ConstPtr& lidar_msg,
                            const sensor_msgs::CompressedImage::ConstPtr& camera_msg,
                            const detect_msgs::Yolo_Objects::ConstPtr& yolo_msg);
     void convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yolo_msg,
                      const std_msgs::Header& header);
+    void publish_2D_pointcloud(const std::vector<cv::Point2d>& pts, const std_msgs::Header& header);
     pcl::PointCloud<pcl::PointXYZ>::Ptr ground_filter(pcl::PointCloud<pcl::PointXYZ> cloud);
 
 public:

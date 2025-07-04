@@ -13,8 +13,6 @@ add_message_files(
   FILES
   Objects.msg
   Yolo_Objects.msg
-  detected_object.msg
-  detected_array.msg
 )
 
 generate_messages(

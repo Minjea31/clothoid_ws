@@ -20,14 +20,10 @@
   <depend>image_transport</depend>
   <depend>pcl_ros</depend>
   <depend>message_filters</depend>
-  <depend>detect_msgs</depend>
-  <depend>message_runtime</depend>
-
-  <!-- 테스트 의존성 (필요시) -->
-  <!-- <test_depend>gtest</test_depend> -->
+  <depend>detect_msgs</depend>           <!-- ✅ 추가 -->
+  <depend>message_runtime</depend>       <!-- ✅ 추가 -->
 
   <export>
-    <!-- 기타 메타데이터 -->
   </export>
 </package>
 

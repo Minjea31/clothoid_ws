@@ -1,6 +1,4 @@
 #include "detection.h"
-#include <detect_msgs/detected_array.h>
-#include <detect_msgs/detected_object.h>
 #include <sensor_msgs/CompressedImage.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
@@ -10,7 +8,6 @@ Object_Detection::Object_Detection(ros::NodeHandle* nodeHandle) : counter(0){
     nh = *nodeHandle;
 
     cloud_centeroid = nh.advertise<sensor_msgs::PointCloud2>("/cloud_centeroid", 1);
-    pub_detected    = nh.advertise<detect_msgs::detected_array>("/detected_objects_3d", 1);
 
     nh.param<std::string>("lidar_topic",    lidar_topic,  "/livox/lidar");
     nh.param<std::string>("camera_topic",   camera_topic, "/camera/image_raw/compressed");
@@ -94,35 +91,6 @@ void Object_Detection::detectionCallback(const sensor_msgs::PointCloud2::ConstPt
 
 void Object_Detection::convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yolo_msg,
                                    const std_msgs::Header& header){
-    detect_msgs::detected_array out;
-    out.header = header;
-    for (auto& Y : yolo_msg->yolo_objects){
-        int x_min = Y.x1, y_min = Y.y1, x_max = Y.x2, y_max = Y.y2;
-        if (x_max - x_min < 30) continue;
-
-        double min_dist = 1e3;
-        int best_idx = -1;
-        for (size_t i = 0; i < projected_list.size(); ++i){
-            double u = projected_list[i].x, v = projected_list[i].y;
-            if (u < x_min+10 || u > x_max-10 || v < y_min+10 || v > y_max-10) continue;
-            if (distance_list[i] < min_dist){
-                min_dist = distance_list[i];
-                best_idx = i;
-            }
-        }
-        if (best_idx < 0) continue;
-
-        detect_msgs::detected_object obj;
-        obj.id = Y.id;
-        obj.world_point.position.x = lidar_points[best_idx].x;
-        obj.world_point.position.y = lidar_points[best_idx].y;
-        obj.world_point.position.z = lidar_points[best_idx].z;
-        obj.world_point.orientation.w = 1.0;
-        out.objects.push_back(obj);
-    }
-    pub_detected.publish(out);
-
-    // centroid 계산
     std::vector<cv::Point2d> current_centroids;
     for (auto& Y : yolo_msg->yolo_objects){
         int x_min = Y.x1, y_min = Y.y1, x_max = Y.x2, y_max = Y.y2;
@@ -142,7 +110,7 @@ void Object_Detection::convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yo
         current_centroids.emplace_back(sx / count, sy / count);
     }
 
-    // EMA 적용
+    // EMA smoothing
     std::vector<cv::Point2d> smoothed_centroids;
     if (is_first_frame){
         smoothed_centroids = current_centroids;
@@ -161,21 +129,23 @@ void Object_Detection::convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yo
     }
     prev_centroids = smoothed_centroids;
 
-    // PointCloud2 publish
-    pcl::PointCloud<pcl::PointXYZ> centroids;
-    for (auto& pt : smoothed_centroids){
-        pcl::PointXYZ c;
-        c.x = pt.x;
-        c.y = pt.y;
-        c.z = 0.0;
-        centroids.points.push_back(c);
-    }
+    // publish pointcloud
+    publish_2D_pointcloud(smoothed_centroids, header);
+}
 
-    sensor_msgs::PointCloud2 cent_msg;
-    pcl::toROSMsg(centroids, cent_msg);
-    cent_msg.header.frame_id = frame_name;
-    cent_msg.header.stamp = header.stamp;
-    cloud_centeroid.publish(cent_msg);
+void Object_Detection::publish_2D_pointcloud(const std::vector<cv::Point2d>& pts, const std_msgs::Header& header){
+    pcl::PointCloud<pcl::PointXYZ> cloud;
+    for (const auto& pt : pts){
+        pcl::PointXYZ p;
+        p.x = pt.x;
+        p.y = pt.y;
+        p.z = 0.0;
+        cloud.points.push_back(p);
+    }
+    sensor_msgs::PointCloud2 msg;
+    pcl::toROSMsg(cloud, msg);
+    msg.header = header;
+    cloud_centeroid.publish(msg);
 }
 
 void Object_Detection::read_projection_matrix(){

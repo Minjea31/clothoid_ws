@@ -298,6 +298,19 @@ detect_msgs_generate_messages_py/fast:
 .PHONY : detect_msgs_generate_messages_py/fast
 
 #=============================================================================
+# Target rules for targets named detect_msgs_generate_messages_nodejs
+
+# Build rule for target.
+detect_msgs_generate_messages_nodejs: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 detect_msgs_generate_messages_nodejs
+.PHONY : detect_msgs_generate_messages_nodejs
+
+# fast build rule for target.
+detect_msgs_generate_messages_nodejs/fast:
+	$(MAKE) -f detect_msgs/CMakeFiles/detect_msgs_generate_messages_nodejs.dir/build.make detect_msgs/CMakeFiles/detect_msgs_generate_messages_nodejs.dir/build
+.PHONY : detect_msgs_generate_messages_nodejs/fast
+
+#=============================================================================
 # Target rules for targets named detect_msgs_genlisp
 
 # Build rule for target.
@@ -350,45 +363,6 @@ detect_msgs_gencpp/fast:
 .PHONY : detect_msgs_gencpp/fast
 
 #=============================================================================
-# Target rules for targets named detect_msgs_generate_messages_cpp
-
-# Build rule for target.
-detect_msgs_generate_messages_cpp: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 detect_msgs_generate_messages_cpp
-.PHONY : detect_msgs_generate_messages_cpp
-
-# fast build rule for target.
-detect_msgs_generate_messages_cpp/fast:
-	$(MAKE) -f detect_msgs/CMakeFiles/detect_msgs_generate_messages_cpp.dir/build.make detect_msgs/CMakeFiles/detect_msgs_generate_messages_cpp.dir/build
-.PHONY : detect_msgs_generate_messages_cpp/fast
-
-#=============================================================================
-# Target rules for targets named detect_msgs_generate_messages_nodejs
-
-# Build rule for target.
-detect_msgs_generate_messages_nodejs: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 detect_msgs_generate_messages_nodejs
-.PHONY : detect_msgs_generate_messages_nodejs
-
-# fast build rule for target.
-detect_msgs_generate_messages_nodejs/fast:
-	$(MAKE) -f detect_msgs/CMakeFiles/detect_msgs_generate_messages_nodejs.dir/build.make detect_msgs/CMakeFiles/detect_msgs_generate_messages_nodejs.dir/build
-.PHONY : detect_msgs_generate_messages_nodejs/fast
-
-#=============================================================================
-# Target rules for targets named _detect_msgs_generate_messages_check_deps_detected_array
-
-# Build rule for target.
-_detect_msgs_generate_messages_check_deps_detected_array: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 _detect_msgs_generate_messages_check_deps_detected_array
-.PHONY : _detect_msgs_generate_messages_check_deps_detected_array
-
-# fast build rule for target.
-_detect_msgs_generate_messages_check_deps_detected_array/fast:
-	$(MAKE) -f detect_msgs/CMakeFiles/_detect_msgs_generate_messages_check_deps_detected_array.dir/build.make detect_msgs/CMakeFiles/_detect_msgs_generate_messages_check_deps_detected_array.dir/build
-.PHONY : _detect_msgs_generate_messages_check_deps_detected_array/fast
-
-#=============================================================================
 # Target rules for targets named rosgraph_msgs_generate_messages_py
 
 # Build rule for target.
@@ -439,6 +413,19 @@ geometry_msgs_generate_messages_nodejs: cmake_check_build_system
 geometry_msgs_generate_messages_nodejs/fast:
 	$(MAKE) -f detect_msgs/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/build.make detect_msgs/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/build
 .PHONY : geometry_msgs_generate_messages_nodejs/fast
+
+#=============================================================================
+# Target rules for targets named detect_msgs_generate_messages_cpp
+
+# Build rule for target.
+detect_msgs_generate_messages_cpp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 detect_msgs_generate_messages_cpp
+.PHONY : detect_msgs_generate_messages_cpp
+
+# fast build rule for target.
+detect_msgs_generate_messages_cpp/fast:
+	$(MAKE) -f detect_msgs/CMakeFiles/detect_msgs_generate_messages_cpp.dir/build.make detect_msgs/CMakeFiles/detect_msgs_generate_messages_cpp.dir/build
+.PHONY : detect_msgs_generate_messages_cpp/fast
 
 #=============================================================================
 # Target rules for targets named detect_msgs_gennodejs
@@ -790,19 +777,6 @@ geometry_msgs_generate_messages_eus: cmake_check_build_system
 geometry_msgs_generate_messages_eus/fast:
 	$(MAKE) -f detect_msgs/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build.make detect_msgs/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build
 .PHONY : geometry_msgs_generate_messages_eus/fast
-
-#=============================================================================
-# Target rules for targets named _detect_msgs_generate_messages_check_deps_detected_object
-
-# Build rule for target.
-_detect_msgs_generate_messages_check_deps_detected_object: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 _detect_msgs_generate_messages_check_deps_detected_object
-.PHONY : _detect_msgs_generate_messages_check_deps_detected_object
-
-# fast build rule for target.
-_detect_msgs_generate_messages_check_deps_detected_object/fast:
-	$(MAKE) -f detect_msgs/CMakeFiles/_detect_msgs_generate_messages_check_deps_detected_object.dir/build.make detect_msgs/CMakeFiles/_detect_msgs_generate_messages_check_deps_detected_object.dir/build
-.PHONY : _detect_msgs_generate_messages_check_deps_detected_object/fast
 
 #=============================================================================
 # Target rules for targets named pcl_msgs_generate_messages_cpp
@@ -1594,17 +1568,16 @@ help:
 	@echo "... gtest_main"
 	@echo "... gtest"
 	@echo "... detect_msgs_generate_messages_py"
+	@echo "... detect_msgs_generate_messages_nodejs"
 	@echo "... detect_msgs_genlisp"
 	@echo "... detect_msgs_generate_messages_lisp"
 	@echo "... detect_msgs_generate_messages_eus"
 	@echo "... detect_msgs_gencpp"
-	@echo "... detect_msgs_generate_messages_cpp"
-	@echo "... detect_msgs_generate_messages_nodejs"
-	@echo "... _detect_msgs_generate_messages_check_deps_detected_array"
 	@echo "... rosgraph_msgs_generate_messages_py"
 	@echo "... roscpp_generate_messages_lisp"
 	@echo "... geometry_msgs_generate_messages_cpp"
 	@echo "... geometry_msgs_generate_messages_nodejs"
+	@echo "... detect_msgs_generate_messages_cpp"
 	@echo "... detect_msgs_gennodejs"
 	@echo "... rosgraph_msgs_generate_messages_lisp"
 	@echo "... _detect_msgs_generate_messages_check_deps_Objects"
@@ -1632,7 +1605,6 @@ help:
 	@echo "... sensor_msgs_generate_messages_cpp"
 	@echo "... std_msgs_generate_messages_nodejs"
 	@echo "... geometry_msgs_generate_messages_eus"
-	@echo "... _detect_msgs_generate_messages_check_deps_detected_object"
 	@echo "... pcl_msgs_generate_messages_cpp"
 	@echo "... bond_generate_messages_nodejs"
 	@echo "... nodelet_generate_messages_nodejs"

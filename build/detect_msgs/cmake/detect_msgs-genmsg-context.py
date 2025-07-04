@@ -1,6 +1,6 @@
 # generated from genmsg/cmake/pkg-genmsg.context.in
 
-messages_str = "/home/a/clothoid_ws/src/detect_msgs/msg/Objects.msg;/home/a/clothoid_ws/src/detect_msgs/msg/Yolo_Objects.msg;/home/a/clothoid_ws/src/detect_msgs/msg/detected_object.msg;/home/a/clothoid_ws/src/detect_msgs/msg/detected_array.msg"
+messages_str = "/home/a/clothoid_ws/src/detect_msgs/msg/Objects.msg;/home/a/clothoid_ws/src/detect_msgs/msg/Yolo_Objects.msg"
 services_str = ""
 pkg_name = "detect_msgs"
 dependencies_str = "std_msgs;geometry_msgs;sensor_msgs"

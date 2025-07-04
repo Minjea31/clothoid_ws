@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(detect_ws)
 
-## Compile as C++14 (PCL 요구)
+## Compile as C++14
 add_compile_options(-std=c++14)
 
 ## Find catkin macros and libraries
@@ -15,7 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   pcl_ros
   message_filters
-  detect_msgs
+  detect_msgs          # ✅ 추가
+  message_generation   # ✅ 추가
 )
 
 ## Find external libraries
@@ -37,8 +38,8 @@ catkin_package(
     image_transport
     pcl_ros
     message_filters
-    detect_msgs
-    message_runtime
+    detect_msgs        # ✅ 추가
+    message_runtime    # ✅ 추가
 )
 
 ###########
@@ -57,13 +58,13 @@ add_executable(object_detection_node
   src/detection.cpp
 )
 
-## 메시지 생성 후 이 노드를 빌드하도록 순서 보장
+## 메시지 의존성 보장
 add_dependencies(object_detection_node
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
 )
 
-## Specify libraries to link a library or executable target against
+## Link libraries
 target_link_libraries(object_detection_node
   ${catkin_LIBRARIES}
   ${OpenCV_LIBS}
