@@ -12,6 +12,12 @@
 
     conda activate clothoid
     
+    cd yolo-V8
+    
+    pip install -e .
+    
+    pip install torch torchvison pyyaml
+    
     source /opt/ros/noetic/setup.bash
 
 # 실행 
