@@ -11,7 +11,7 @@
     <param name="lidar_topic"  value="/livox/lidar"/>
     <param name="camera_topic" value="/camera/image_raw/compressed"/>
     <param name="yolo_topic"   value="/yolov8_pub"/>
-    <param name="frame_name"   value="livox_frame"/>
+    <param name="frame_name"   value="map"/>
 
     <!-- LiDAR 필터링 범위 -->
     <param name="xMinRange" value="0"/>
@@ -26,18 +26,5 @@
     <param name="cluster_min"       value="4"/>
     <param name="cluster_max"       value="100"/>
   </node>
-
-  <!-- RViz (선택) -->
-  <arg name="open_rviz" default="true"/>
-  <group if="$(arg open_rviz)">
-    <node
-      pkg="rviz"
-      type="rviz"
-      name="rviz"
-      required="true"
-      output="screen"
-      args="-d $(find detect_ws)/rviz/view.rviz"
-    />
-  </group>
 </launch>
 
