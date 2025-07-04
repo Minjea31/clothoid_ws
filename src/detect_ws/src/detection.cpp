@@ -1,18 +1,19 @@
 #include "detection.h"
 #include <sensor_msgs/CompressedImage.h>
-#include <sensor_msgs/PointCloud.h> // ✅ 변경됨
+#include <sensor_msgs/PointCloud.h>
 #include <pcl_conversions/pcl_conversions.h>
 
-Object_Detection::Object_Detection(ros::NodeHandle* nodeHandle) : counter(0){
+Object_Detection::Object_Detection(ros::NodeHandle* nodeHandle)
+    : counter(0), is_first_frame(true), alpha(0.3) {
     ROS_INFO("start detection");
     nh = *nodeHandle;
 
-    cloud_centeroid = nh.advertise<sensor_msgs::PointCloud>("/cloud_centeroid", 1);  // ✅ 수정
+    cloud_centeroid = nh.advertise<sensor_msgs::PointCloud>("/cloud_centeroid", 1);
 
     nh.param<std::string>("lidar_topic",    lidar_topic,  "/livox/lidar");
     nh.param<std::string>("camera_topic",   camera_topic, "/camera/image_raw/compressed");
     nh.param<std::string>("yolo_topic",     yolo_topic,   "/yolov8_pub");
-    nh.param<std::string>("frame_name",     frame_name,   "livox_frame");
+    nh.param<std::string>("frame_name",     frame_name,   "map");
 
     nh.param<double>("xMinRange",  xMinRange,  0.0);
     nh.param<double>("xMaxRange",  xMaxRange, 20.0);
@@ -66,6 +67,15 @@ void Object_Detection::detectionCallback(const sensor_msgs::PointCloud2::ConstPt
                                          const detect_msgs::Yolo_Objects::ConstPtr& yolo_msg){
     ROS_INFO("Callback...");
 
+    if (!lidar_msg || !camera_msg || !yolo_msg) {
+        ROS_WARN("[detectionCallback] One or more inputs missing. Publishing (0,0)");
+        std_msgs::Header fallback_header;
+        fallback_header.stamp = ros::Time::now();
+        fallback_header.frame_id = frame_name;
+        publish_2D_pointcloud({cv::Point2d(0.0, 0.0)}, fallback_header);
+        return;
+    }
+
     auto cv_ptr = cv_bridge::toCvCopy(camera_msg, sensor_msgs::image_encodings::BGR8);
     camera_image = cv_ptr->image;
 
@@ -110,8 +120,10 @@ void Object_Detection::convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yo
         current_centroids.emplace_back(sx / count, sy / count);
     }
 
-    // EMA smoothing
     std::vector<cv::Point2d> smoothed_centroids;
+    double weight_current = 0.8; //현재 위치의 가중치
+    double weight_previous = 0.2;
+
     if (is_first_frame){
         smoothed_centroids = current_centroids;
         is_first_frame = false;
@@ -122,14 +134,13 @@ void Object_Detection::convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yo
                 continue;
             }
             cv::Point2d s;
-            s.x = alpha * current_centroids[i].x + (1.0 - alpha) * prev_centroids[i].x;
-            s.y = alpha * current_centroids[i].y + (1.0 - alpha) * prev_centroids[i].y;
+            s.x = weight_current * current_centroids[i].x + weight_previous * prev_centroids[i].x;
+            s.y = weight_current * current_centroids[i].y + weight_previous * prev_centroids[i].y;
             smoothed_centroids.push_back(s);
         }
     }
-    prev_centroids = smoothed_centroids;
 
-    // publish pointcloud
+    prev_centroids = smoothed_centroids;
     publish_2D_pointcloud(smoothed_centroids, header);
 }
 
@@ -137,7 +148,13 @@ void Object_Detection::publish_2D_pointcloud(const std::vector<cv::Point2d>& pts
     sensor_msgs::PointCloud cloud;
     cloud.header = header;
 
-    for (const auto& pt : pts){
+    std::vector<cv::Point2d> points = pts;
+    if (points.empty()) {
+        ROS_WARN("[publish_2D_pointcloud] Input points empty → inserting (0,0)");
+        points.emplace_back(0.0, 0.0);
+    }
+
+    for (const auto& pt : points){
         geometry_msgs::Point32 p;
         p.x = pt.x;
         p.y = pt.y;
@@ -145,6 +162,13 @@ void Object_Detection::publish_2D_pointcloud(const std::vector<cv::Point2d>& pts
         cloud.points.push_back(p);
     }
 
+    // 💡 channels도 같이 넣는 것이 좋음 (일부 도구가 비어있으면 무시)
+    sensor_msgs::ChannelFloat32 dummy_channel;
+    dummy_channel.name = "dummy";
+    dummy_channel.values.resize(cloud.points.size(), 1.0f);
+    cloud.channels.push_back(dummy_channel);
+
+    ROS_INFO("[publish_2D_pointcloud] Publishing %lu points", cloud.points.size());
     cloud_centeroid.publish(cloud);
 }
 
@@ -196,4 +220,3 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr Object_Detection::ground_filter(pcl::PointCl
     }
     return filtered;
 }
-
