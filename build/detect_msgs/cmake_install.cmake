@@ -67,7 +67,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  execute_process(COMMAND "/home/a/anaconda3/envs/yolov8/bin/python3" -m compileall "/home/a/clothoid_ws/devel/lib/python3/dist-packages/detect_msgs")
+  execute_process(COMMAND "/home/a/anaconda3/envs/clothoid/bin/python3" -m compileall "/home/a/clothoid_ws/devel/lib/python3/dist-packages/detect_msgs")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)

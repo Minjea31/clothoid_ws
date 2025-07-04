@@ -346,7 +346,7 @@ EIGEN_INCLUDE_DIR:PATH=/usr/include/eigen3
 EMPY_EXECUTABLE:FILEPATH=EMPY_EXECUTABLE-NOTFOUND
 
 //Empy script
-EMPY_SCRIPT:STRING=/home/a/anaconda3/envs/yolov8/lib/python3.8/site-packages/em.py
+EMPY_SCRIPT:STRING=/home/a/anaconda3/envs/clothoid/lib/python3.8/site-packages/em.py
 
 //Path to a file.
 FLANN_INCLUDE_DIR:PATH=/usr/include
@@ -388,7 +388,7 @@ GTEST_MAIN_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libgtest_main.a
 GTEST_MAIN_LIBRARY_DEBUG:FILEPATH=GTEST_MAIN_LIBRARY_DEBUG-NOTFOUND
 
 //The directory containing a CMake configuration file for GTest.
-GTest_DIR:PATH=/home/a/anaconda3/lib/cmake/GTest
+GTest_DIR:PATH=GTest_DIR-NOTFOUND
 
 //Enable installation of googletest. (Projects embedding googletest
 // may want to turn this OFF.)
@@ -623,13 +623,13 @@ PCL_VISUALIZATION_LIBRARY_DEBUG:FILEPATH=/usr/lib/x86_64-linux-gnu/libpcl_visual
 PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
 
 //Path to a program.
-PYTHON_EXECUTABLE:FILEPATH=/home/a/anaconda3/envs/yolov8/bin/python3
+PYTHON_EXECUTABLE:FILEPATH=/home/a/anaconda3/envs/clothoid/bin/python3
 
 //Specify specific Python version to use ('major.minor' or 'major')
 PYTHON_VERSION:STRING=3
 
 //Location of Python module em
-PY_EM:STRING=/home/a/anaconda3/envs/yolov8/lib/python3.8/site-packages/em.py
+PY_EM:STRING=/home/a/anaconda3/envs/clothoid/lib/python3.8/site-packages/em.py
 
 //Value Computed by CMake
 Project_BINARY_DIR:STATIC=/home/a/clothoid_ws/build
@@ -1208,9 +1208,9 @@ FIND_PACKAGE_MESSAGE_DETAILS_PCL_TRACKING:INTERNAL=[/usr/lib/x86_64-linux-gnu/li
 //Details about finding PCL_VISUALIZATION
 FIND_PACKAGE_MESSAGE_DETAILS_PCL_VISUALIZATION:INTERNAL=[/usr/lib/x86_64-linux-gnu/libpcl_visualization.so][/usr/include/pcl-1.10][v()]
 //Details about finding PY_em
-FIND_PACKAGE_MESSAGE_DETAILS_PY_em:INTERNAL=[/home/a/anaconda3/envs/yolov8/lib/python3.8/site-packages/em.py][v()]
+FIND_PACKAGE_MESSAGE_DETAILS_PY_em:INTERNAL=[/home/a/anaconda3/envs/clothoid/lib/python3.8/site-packages/em.py][v()]
 //Details about finding PythonInterp
-FIND_PACKAGE_MESSAGE_DETAILS_PythonInterp:INTERNAL=[/home/a/anaconda3/envs/yolov8/bin/python3][v3.8.20()]
+FIND_PACKAGE_MESSAGE_DETAILS_PythonInterp:INTERNAL=[/home/a/anaconda3/envs/clothoid/bin/python3][v3.8.20()]
 //Details about finding Qhull
 FIND_PACKAGE_MESSAGE_DETAILS_Qhull:INTERNAL=[optimized;/usr/lib/x86_64-linux-gnu/libqhull.so;debug;/usr/lib/x86_64-linux-gnu/libqhull.so][/usr/include][v()]
 //Details about finding Threads

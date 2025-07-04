@@ -19,4 +19,4 @@ list(APPEND CATKIN_ORDERED_PACKAGES_BUILD_TYPE "catkin")
 
 set(CATKIN_MESSAGE_GENERATORS )
 
-set(CATKIN_METAPACKAGE_CMAKE_TEMPLATE "/home/a/anaconda3/envs/yolov8/lib/python3.8/site-packages/catkin_pkg/templates/metapackage.cmake.in")
+set(CATKIN_METAPACKAGE_CMAKE_TEMPLATE "/home/a/anaconda3/envs/clothoid/lib/python3.8/site-packages/catkin_pkg/templates/metapackage.cmake.in")

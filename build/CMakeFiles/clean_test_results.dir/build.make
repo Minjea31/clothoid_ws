@@ -54,7 +54,7 @@ CMAKE_BINARY_DIR = /home/a/clothoid_ws/build
 include CMakeFiles/clean_test_results.dir/progress.make
 
 CMakeFiles/clean_test_results:
-	/home/a/anaconda3/envs/yolov8/bin/python3 /opt/ros/noetic/share/catkin/cmake/test/remove_test_results.py /home/a/clothoid_ws/build/test_results
+	/home/a/anaconda3/envs/clothoid/bin/python3 /opt/ros/noetic/share/catkin/cmake/test/remove_test_results.py /home/a/clothoid_ws/build/test_results
 
 clean_test_results: CMakeFiles/clean_test_results
 clean_test_results: CMakeFiles/clean_test_results.dir/build.make
