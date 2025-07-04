@@ -1,10 +1,9 @@
-// detection.cpp
 #include "detection.h"
 #include <detect_msgs/detected_array.h>
 #include <detect_msgs/detected_object.h>
 #include <sensor_msgs/CompressedImage.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <pcl_conversions/pcl_conversions.h>  // for pcl::toROSMsg
+#include <pcl_conversions/pcl_conversions.h>
 
 Object_Detection::Object_Detection(ros::NodeHandle* nodeHandle) : counter(0){
     ROS_INFO("start detection");
@@ -20,14 +19,14 @@ Object_Detection::Object_Detection(ros::NodeHandle* nodeHandle) : counter(0){
 
     nh.param<double>("xMinRange",  xMinRange,  0.0);
     nh.param<double>("xMaxRange",  xMaxRange, 20.0);
-    nh.param<double>("yMinRange",  yMinRange,-6.0);
+    nh.param<double>("yMinRange",  yMinRange, -6.0);
     nh.param<double>("yMaxRange",  yMaxRange, 6.0);
-    nh.param<double>("zMinRange",  zMinRange,-0.5);
+    nh.param<double>("zMinRange",  zMinRange, -0.5);
     nh.param<double>("zMaxRange",  zMaxRange, 0.0);
 
     nh.param<double>("cluster_tolerance", cluster_tolerance, 1.0);
-    nh.param<int>(   "cluster_min",       cluster_min,       4);
-    nh.param<int>(   "cluster_max",       cluster_max,     100);
+    nh.param<int>("cluster_min", cluster_min, 10);
+    nh.param<int>("cluster_max", cluster_max, 100);
 
     message_filters::Subscriber<sensor_msgs::PointCloud2>     lidar_sub(nh, lidar_topic,  10);
     message_filters::Subscriber<sensor_msgs::CompressedImage> camera_sub(nh, camera_topic, 10);
@@ -70,11 +69,9 @@ void Object_Detection::detectionCallback(const sensor_msgs::PointCloud2::ConstPt
                                          const detect_msgs::Yolo_Objects::ConstPtr& yolo_msg){
     ROS_INFO("Callback...");
 
-    // 이미지 디코딩
     auto cv_ptr = cv_bridge::toCvCopy(camera_msg, sensor_msgs::image_encodings::BGR8);
     camera_image = cv_ptr->image;
 
-    // LiDAR 포인트 클라우드 읽어서 필터링
     pcl::PointCloud<pcl::PointXYZI>::Ptr pc(new pcl::PointCloud<pcl::PointXYZI>());
     pcl::fromROSMsg(*lidar_msg, *pc);
     filter.setCondition(filter_range);
@@ -97,7 +94,6 @@ void Object_Detection::detectionCallback(const sensor_msgs::PointCloud2::ConstPt
 
 void Object_Detection::convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yolo_msg,
                                    const std_msgs::Header& header){
-    // 1) Publish 3D detections
     detect_msgs::detected_array out;
     out.header = header;
     for (auto& Y : yolo_msg->yolo_objects){
@@ -108,8 +104,7 @@ void Object_Detection::convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yo
         int best_idx = -1;
         for (size_t i = 0; i < projected_list.size(); ++i){
             double u = projected_list[i].x, v = projected_list[i].y;
-            if (u < x_min+10 || u > x_max-10 ||
-                v < y_min+10 || v > y_max-10) continue;
+            if (u < x_min+10 || u > x_max-10 || v < y_min+10 || v > y_max-10) continue;
             if (distance_list[i] < min_dist){
                 min_dist = distance_list[i];
                 best_idx = i;
@@ -127,44 +122,66 @@ void Object_Detection::convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yo
     }
     pub_detected.publish(out);
 
-    // 2) Compute per-bbox centroids
-    pcl::PointCloud<pcl::PointXYZ> centroids;
+    // centroid 계산
+    std::vector<cv::Point2d> current_centroids;
     for (auto& Y : yolo_msg->yolo_objects){
         int x_min = Y.x1, y_min = Y.y1, x_max = Y.x2, y_max = Y.y2;
         if (x_max - x_min < 30) continue;
 
-        double sx=0, sy=0;
+        double sx = 0, sy = 0;
         int count = 0;
         for (size_t i = 0; i < projected_list.size(); ++i){
             double u = projected_list[i].x, v = projected_list[i].y;
-            if (u >= x_min+10 && u <= x_max-10 &&
-                v >= y_min+10 && v <= y_max-10){
+            if (u >= x_min+10 && u <= x_max-10 && v >= y_min+10 && v <= y_max-10){
                 sx += lidar_points[i].x;
                 sy += lidar_points[i].y;
                 ++count;
             }
         }
         if (count == 0) continue;
+        current_centroids.emplace_back(sx / count, sy / count);
+    }
+
+    // EMA 적용
+    std::vector<cv::Point2d> smoothed_centroids;
+    if (is_first_frame){
+        smoothed_centroids = current_centroids;
+        is_first_frame = false;
+    } else {
+        for (size_t i = 0; i < current_centroids.size(); ++i){
+            if (i >= prev_centroids.size()){
+                smoothed_centroids.push_back(current_centroids[i]);
+                continue;
+            }
+            cv::Point2d s;
+            s.x = alpha * current_centroids[i].x + (1.0 - alpha) * prev_centroids[i].x;
+            s.y = alpha * current_centroids[i].y + (1.0 - alpha) * prev_centroids[i].y;
+            smoothed_centroids.push_back(s);
+        }
+    }
+    prev_centroids = smoothed_centroids;
+
+    // PointCloud2 publish
+    pcl::PointCloud<pcl::PointXYZ> centroids;
+    for (auto& pt : smoothed_centroids){
         pcl::PointXYZ c;
-        c.x = sx / count;
-        c.y = sy / count;
-        c.z = 0;  // only x,y needed
+        c.x = pt.x;
+        c.y = pt.y;
+        c.z = 0.0;
         centroids.points.push_back(c);
     }
 
-    // 3) Publish centroids as PointCloud2
     sensor_msgs::PointCloud2 cent_msg;
     pcl::toROSMsg(centroids, cent_msg);
     cent_msg.header.frame_id = frame_name;
-    cent_msg.header.stamp    = header.stamp;
+    cent_msg.header.stamp = header.stamp;
     cloud_centeroid.publish(cent_msg);
 }
 
 void Object_Detection::read_projection_matrix(){
     double fx = 1.8555e+03, fy = 1.8549e+03;
     double cx = 950.6236, cy = 575.6943;
-    cv::Mat camera_matrix = (cv::Mat_<double>(3,3)<<
-        fx,0,cx, 0,fy,cy, 0,0,1);
+    cv::Mat camera_matrix = (cv::Mat_<double>(3,3)<< fx,0,cx, 0,fy,cy, 0,0,1);
     cv::Mat T = (cv::Mat_<double>(3,4)<<
         -0.0259,-0.9994,0.0212,0.0269,
         -0.0177,-0.0207,-0.9996,-0.1107,
@@ -173,8 +190,7 @@ void Object_Detection::read_projection_matrix(){
     projection_matrix = camera_matrix * T;
 }
 
-pcl::PointCloud<pcl::PointXYZ>::Ptr Object_Detection::ground_filter(
-    pcl::PointCloud<pcl::PointXYZ> cloud){
+pcl::PointCloud<pcl::PointXYZ>::Ptr Object_Detection::ground_filter(pcl::PointCloud<pcl::PointXYZ> cloud){
     double height_thresh = 0.0;
     int grid_dim = 320; double per_cell = 0.2;
     pcl::PointCloud<pcl::PointXYZ>::Ptr filtered(new pcl::PointCloud<pcl::PointXYZ>());
@@ -210,3 +226,4 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr Object_Detection::ground_filter(
     }
     return filtered;
 }
+

@@ -1,4 +1,3 @@
-// detection.h
 #pragma once
 
 #define _USE_MATH_DEFINES
@@ -40,7 +39,7 @@ struct object_struct {
     double v;
     int    id;
 };
-  
+
 class Object_Detection {
 private:
     ros::NodeHandle nh;
@@ -62,6 +61,11 @@ private:
     std::vector<cv::Point3d>              lidar_points;
     std::vector<cv::Point2d>              projected_list;
     std::vector<double>                   distance_list;
+
+    // 추가: centroid EMA smoothing을 위한 변수
+    std::vector<cv::Point2d>              prev_centroids;
+    bool is_first_frame = true;
+    double alpha = 0.3;
 
     int counter;
 
