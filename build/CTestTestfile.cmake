@@ -6,5 +6,5 @@
 # testing this directory and lists subdirectories to be tested as well.
 subdirs("gtest")
 subdirs("detect_msgs")
-subdirs("detect_ws")
-subdirs("yolov8_ws")
+subdirs("Object_detect")
+subdirs("yolov8")

@@ -92,16 +92,6 @@ install/fast: preinstall/fast
 	/usr/bin/cmake -P cmake_install.cmake
 .PHONY : install/fast
 
-# Special rule for the target list_install_components
-list_install_components:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
-.PHONY : list_install_components
-
-# Special rule for the target list_install_components
-list_install_components/fast: list_install_components
-
-.PHONY : list_install_components/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -134,6 +124,16 @@ test:
 test/fast: test
 
 .PHONY : test/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+
+.PHONY : list_install_components/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -678,6 +678,21 @@ pcl_msgs_generate_messages_py/fast:
 .PHONY : pcl_msgs_generate_messages_py/fast
 
 # Convenience name for target.
+detect_ws/CMakeFiles/detect_ws_gencfg.dir/rule:
+	cd /home/a/clothoid_ws/build && $(MAKE) -f CMakeFiles/Makefile2 detect_ws/CMakeFiles/detect_ws_gencfg.dir/rule
+.PHONY : detect_ws/CMakeFiles/detect_ws_gencfg.dir/rule
+
+# Convenience name for target.
+detect_ws_gencfg: detect_ws/CMakeFiles/detect_ws_gencfg.dir/rule
+
+.PHONY : detect_ws_gencfg
+
+# fast build rule for target.
+detect_ws_gencfg/fast:
+	cd /home/a/clothoid_ws/build && $(MAKE) -f detect_ws/CMakeFiles/detect_ws_gencfg.dir/build.make detect_ws/CMakeFiles/detect_ws_gencfg.dir/build
+.PHONY : detect_ws_gencfg/fast
+
+# Convenience name for target.
 detect_ws/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/rule:
 	cd /home/a/clothoid_ws/build && $(MAKE) -f CMakeFiles/Makefile2 detect_ws/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/rule
 .PHONY : detect_ws/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/rule
@@ -796,6 +811,36 @@ std_srvs_generate_messages_py: detect_ws/CMakeFiles/std_srvs_generate_messages_p
 std_srvs_generate_messages_py/fast:
 	cd /home/a/clothoid_ws/build && $(MAKE) -f detect_ws/CMakeFiles/std_srvs_generate_messages_py.dir/build.make detect_ws/CMakeFiles/std_srvs_generate_messages_py.dir/build
 .PHONY : std_srvs_generate_messages_py/fast
+
+# Convenience name for target.
+detect_ws/CMakeFiles/object_detection_node.dir/rule:
+	cd /home/a/clothoid_ws/build && $(MAKE) -f CMakeFiles/Makefile2 detect_ws/CMakeFiles/object_detection_node.dir/rule
+.PHONY : detect_ws/CMakeFiles/object_detection_node.dir/rule
+
+# Convenience name for target.
+object_detection_node: detect_ws/CMakeFiles/object_detection_node.dir/rule
+
+.PHONY : object_detection_node
+
+# fast build rule for target.
+object_detection_node/fast:
+	cd /home/a/clothoid_ws/build && $(MAKE) -f detect_ws/CMakeFiles/object_detection_node.dir/build.make detect_ws/CMakeFiles/object_detection_node.dir/build
+.PHONY : object_detection_node/fast
+
+# Convenience name for target.
+detect_ws/CMakeFiles/topic_tools_generate_messages_lisp.dir/rule:
+	cd /home/a/clothoid_ws/build && $(MAKE) -f CMakeFiles/Makefile2 detect_ws/CMakeFiles/topic_tools_generate_messages_lisp.dir/rule
+.PHONY : detect_ws/CMakeFiles/topic_tools_generate_messages_lisp.dir/rule
+
+# Convenience name for target.
+topic_tools_generate_messages_lisp: detect_ws/CMakeFiles/topic_tools_generate_messages_lisp.dir/rule
+
+.PHONY : topic_tools_generate_messages_lisp
+
+# fast build rule for target.
+topic_tools_generate_messages_lisp/fast:
+	cd /home/a/clothoid_ws/build && $(MAKE) -f detect_ws/CMakeFiles/topic_tools_generate_messages_lisp.dir/build.make detect_ws/CMakeFiles/topic_tools_generate_messages_lisp.dir/build
+.PHONY : topic_tools_generate_messages_lisp/fast
 
 # Convenience name for target.
 detect_ws/CMakeFiles/topic_tools_generate_messages_nodejs.dir/rule:
@@ -1022,36 +1067,6 @@ tf2_msgs_generate_messages_lisp/fast:
 	cd /home/a/clothoid_ws/build && $(MAKE) -f detect_ws/CMakeFiles/tf2_msgs_generate_messages_lisp.dir/build.make detect_ws/CMakeFiles/tf2_msgs_generate_messages_lisp.dir/build
 .PHONY : tf2_msgs_generate_messages_lisp/fast
 
-# Convenience name for target.
-detect_ws/CMakeFiles/topic_tools_generate_messages_lisp.dir/rule:
-	cd /home/a/clothoid_ws/build && $(MAKE) -f CMakeFiles/Makefile2 detect_ws/CMakeFiles/topic_tools_generate_messages_lisp.dir/rule
-.PHONY : detect_ws/CMakeFiles/topic_tools_generate_messages_lisp.dir/rule
-
-# Convenience name for target.
-topic_tools_generate_messages_lisp: detect_ws/CMakeFiles/topic_tools_generate_messages_lisp.dir/rule
-
-.PHONY : topic_tools_generate_messages_lisp
-
-# fast build rule for target.
-topic_tools_generate_messages_lisp/fast:
-	cd /home/a/clothoid_ws/build && $(MAKE) -f detect_ws/CMakeFiles/topic_tools_generate_messages_lisp.dir/build.make detect_ws/CMakeFiles/topic_tools_generate_messages_lisp.dir/build
-.PHONY : topic_tools_generate_messages_lisp/fast
-
-# Convenience name for target.
-detect_ws/CMakeFiles/object_detection_node.dir/rule:
-	cd /home/a/clothoid_ws/build && $(MAKE) -f CMakeFiles/Makefile2 detect_ws/CMakeFiles/object_detection_node.dir/rule
-.PHONY : detect_ws/CMakeFiles/object_detection_node.dir/rule
-
-# Convenience name for target.
-object_detection_node: detect_ws/CMakeFiles/object_detection_node.dir/rule
-
-.PHONY : object_detection_node
-
-# fast build rule for target.
-object_detection_node/fast:
-	cd /home/a/clothoid_ws/build && $(MAKE) -f detect_ws/CMakeFiles/object_detection_node.dir/build.make detect_ws/CMakeFiles/object_detection_node.dir/build
-.PHONY : object_detection_node/fast
-
 src/detection.o: src/detection.cpp.o
 
 .PHONY : src/detection.o
@@ -1115,7 +1130,6 @@ help:
 	@echo "... install/strip"
 	@echo "... install/local"
 	@echo "... install"
-	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... pcl_msgs_generate_messages_cpp"
@@ -1153,6 +1167,8 @@ help:
 	@echo "... dynamic_reconfigure_gencfg"
 	@echo "... test"
 	@echo "... pcl_msgs_generate_messages_py"
+	@echo "... list_install_components"
+	@echo "... detect_ws_gencfg"
 	@echo "... tf2_msgs_generate_messages_cpp"
 	@echo "... dynamic_reconfigure_generate_messages_lisp"
 	@echo "... std_srvs_generate_messages_lisp"
@@ -1161,6 +1177,8 @@ help:
 	@echo "... nodelet_generate_messages_py"
 	@echo "... std_srvs_generate_messages_nodejs"
 	@echo "... std_srvs_generate_messages_py"
+	@echo "... object_detection_node"
+	@echo "... topic_tools_generate_messages_lisp"
 	@echo "... topic_tools_generate_messages_nodejs"
 	@echo "... tf2_msgs_generate_messages_eus"
 	@echo "... topic_tools_generate_messages_py"
@@ -1176,8 +1194,6 @@ help:
 	@echo "... actionlib_msgs_generate_messages_nodejs"
 	@echo "... actionlib_msgs_generate_messages_lisp"
 	@echo "... tf2_msgs_generate_messages_lisp"
-	@echo "... topic_tools_generate_messages_lisp"
-	@echo "... object_detection_node"
 	@echo "... src/detection.o"
 	@echo "... src/detection.i"
 	@echo "... src/detection.s"

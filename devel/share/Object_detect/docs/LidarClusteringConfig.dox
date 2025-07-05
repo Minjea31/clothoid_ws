@@ -1,0 +1,31 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~PITCH_DEG" : \b [double] 센서 pitch(deg) min: -10.0, default: 3.3, max: 10.0
+- \b "~ROI_X_MIN" : \b [double] ROI_X_MIN min: -30.0, default: 0.0, max: 30.0
+- \b "~ROI_X_MAX" : \b [double] ROI_X_MAX min: -30.0, default: 15.0, max: 30.0
+- \b "~ROI_Y_MIN" : \b [double] ROI_Y_MIN min: -10.0, default: -1.8, max: 10.0
+- \b "~ROI_Y_MAX" : \b [double] ROI_Y_MAX min: -10.0, default: 1.8, max: 10.0
+- \b "~ROI_Z_MIN" : \b [double] ROI_Z_MIN min: -10.0, default: -2.0, max: 10.0
+- \b "~ROI_Z_MAX" : \b [double] ROI_Z_MAX min: -10.0, default: 2.0, max: 10.0
+- \b "~VOXEL_SIZE" : \b [double] Voxel Size min: 0.01, default: 0.1, max: 0.5
+- \b "~DROR_MIN_NEIGHBORS" : \b [int] DROR min neighbors min: 1, default: 2, max: 10
+- \b "~DROR_MIN_RADIUS" : \b [double] DROR min radius min: 0.01, default: 0.2, max: 1.0
+- \b "~DROR_RADIUS_SCALE" : \b [double] DROR radius scale min: 0.01, default: 0.4, max: 1.0
+- \b "~DROR_MAX_RADIUS" : \b [double] DROR max radius min: 0.01, default: 0.3, max: 1.0
+- \b "~GROUND_THRESH" : \b [double] Ground threshold min: 0.01, default: 0.25, max: 1.0
+- \b "~EUCLIDEAN_CLUSTER_DIST" : \b [double] 클러스터링 거리 min: 0.01, default: 0.1, max: 0.5
+- \b "~EUCLIDEAN_MIN_CLUSTER_SIZE" : \b [int] 최소 클러스터 크기 min: 1, default: 4, max: 20
+- \b "~CLUSTER_MERGE_GAP" : \b [double] 클러스터 병합 gap min: 0.01, default: 0.05, max: 0.5
+- \b "~MAX_LENGTH" : \b [double] 최대 길이 min: 0.1, default: 2.0, max: 10.0
+- \b "~MAX_WIDTH" : \b [double] 최대 폭 min: 0.1, default: 2.0, max: 10.0
+- \b "~MAX_HEIGHT" : \b [double] 최대 높이 min: 0.1, default: 1.5, max: 10.0
+- \b "~MIN_LENGTH" : \b [double] 최소 길이 min: 0.01, default: 0.1, max: 2.0
+- \b "~MIN_WIDTH" : \b [double] 최소 폭 min: 0.01, default: 0.1, max: 2.0
+- \b "~MIN_HEIGHT" : \b [double] 최소 높이 min: 0.01, default: 0.1, max: 2.0
+- \b "~TRACKER_MAX_MISS" : \b [int] 트래커 최대 miss min: 0, default: 2, max: 10
+- \b "~MATCH_DIST" : \b [double] 트래커 매칭 거리 min: 0.1, default: 1.5, max: 10.0
+- \b "~EUCLIDEAN_BASE_DIST" : \b [double] 기본 클러스터 거리 min: 0.01, default: 0.08, max: 0.3
+- \b "~EUCLIDEAN_DIST_SCALE" : \b [double] 거리 증가당 threshold min: 0.001, default: 0.012, max: 0.05
+

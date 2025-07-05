@@ -91,9 +91,9 @@ endif()
 # flag project as catkin-based to distinguish if a find_package()-ed project is a catkin project
 set(detect_ws_FOUND_CATKIN_PROJECT TRUE)
 
-if(NOT "/home/a/clothoid_ws/src/detect_ws/include " STREQUAL " ")
+if(NOT "/home/a/clothoid_ws/devel/include;/home/a/clothoid_ws/src/detect_ws/include " STREQUAL " ")
   set(detect_ws_INCLUDE_DIRS "")
-  set(_include_dirs "/home/a/clothoid_ws/src/detect_ws/include")
+  set(_include_dirs "/home/a/clothoid_ws/devel/include;/home/a/clothoid_ws/src/detect_ws/include")
   if(NOT " " STREQUAL " ")
     set(_report "Check the issue tracker '' and consider creating a ticket if the problem has not been reported yet.")
   elseif(NOT " " STREQUAL " ")
@@ -179,7 +179,7 @@ foreach(library ${libraries})
   endif()
 endforeach()
 
-set(detect_ws_EXPORTED_TARGETS "")
+set(detect_ws_EXPORTED_TARGETS "detect_ws_gencfg")
 # create dummy targets for exported code generation targets to make life of users easier
 foreach(t ${detect_ws_EXPORTED_TARGETS})
   if(NOT TARGET ${t})

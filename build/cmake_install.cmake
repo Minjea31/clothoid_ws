@@ -147,8 +147,8 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/a/clothoid_ws/build/gtest/cmake_install.cmake")
   include("/home/a/clothoid_ws/build/detect_msgs/cmake_install.cmake")
-  include("/home/a/clothoid_ws/build/detect_ws/cmake_install.cmake")
-  include("/home/a/clothoid_ws/build/yolov8_ws/cmake_install.cmake")
+  include("/home/a/clothoid_ws/build/Object_detect/cmake_install.cmake")
+  include("/home/a/clothoid_ws/build/yolov8/cmake_install.cmake")
 
 endif()
 

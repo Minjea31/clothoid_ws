@@ -22,6 +22,10 @@
   <depend>message_filters</depend>
   <depend>detect_msgs</depend>           <!-- ✅ 메시지 타입 사용 -->
   <depend>message_runtime</depend>       <!-- ✅ 메시지 런타임 의존성 -->
+  
+  
+  
+  <depend>dynamic_reconfigure</depend>
 
   <export>
   </export>

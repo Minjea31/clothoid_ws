@@ -179,7 +179,7 @@ foreach(library ${libraries})
   endif()
 endforeach()
 
-set(detect_ws_EXPORTED_TARGETS "")
+set(detect_ws_EXPORTED_TARGETS "detect_ws_gencfg")
 # create dummy targets for exported code generation targets to make life of users easier
 foreach(t ${detect_ws_EXPORTED_TARGETS})
   if(NOT TARGET ${t})
