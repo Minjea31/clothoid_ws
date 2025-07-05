@@ -67,15 +67,6 @@ void Object_Detection::detectionCallback(const sensor_msgs::PointCloud2::ConstPt
                                          const detect_msgs::Yolo_Objects::ConstPtr& yolo_msg){
     ROS_INFO("Callback...");
 
-    if (!lidar_msg || !camera_msg || !yolo_msg) {
-        ROS_WARN("[detectionCallback] One or more inputs missing. Publishing (0,0)");
-        std_msgs::Header fallback_header;
-        fallback_header.stamp = ros::Time::now();
-        fallback_header.frame_id = frame_name;
-        publish_2D_pointcloud({cv::Point2d(0.0, 0.0)}, fallback_header);
-        return;
-    }
-
     auto cv_ptr = cv_bridge::toCvCopy(camera_msg, sensor_msgs::image_encodings::BGR8);
     camera_image = cv_ptr->image;
 
@@ -121,7 +112,7 @@ void Object_Detection::convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yo
     }
 
     std::vector<cv::Point2d> smoothed_centroids;
-    double weight_current = 0.8; //현재 위치의 가중치
+    double weight_current = 0.8;
     double weight_previous = 0.2;
 
     if (is_first_frame){
@@ -147,10 +138,10 @@ void Object_Detection::convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yo
 void Object_Detection::publish_2D_pointcloud(const std::vector<cv::Point2d>& pts, const std_msgs::Header& header){
     sensor_msgs::PointCloud cloud;
     cloud.header = header;
+    cloud.header.frame_id = frame_name;
 
     std::vector<cv::Point2d> points = pts;
     if (points.empty()) {
-        ROS_WARN("[publish_2D_pointcloud] Input points empty → inserting (0,0)");
         points.emplace_back(0.0, 0.0);
     }
 
@@ -162,7 +153,6 @@ void Object_Detection::publish_2D_pointcloud(const std::vector<cv::Point2d>& pts
         cloud.points.push_back(p);
     }
 
-    // 💡 channels도 같이 넣는 것이 좋음 (일부 도구가 비어있으면 무시)
     sensor_msgs::ChannelFloat32 dummy_channel;
     dummy_channel.name = "dummy";
     dummy_channel.values.resize(cloud.points.size(), 1.0f);

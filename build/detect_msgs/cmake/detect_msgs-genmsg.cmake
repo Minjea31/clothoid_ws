@@ -24,7 +24,7 @@ add_custom_target(_detect_msgs_generate_messages_check_deps_${_filename}
 
 get_filename_component(_filename "/home/a/clothoid_ws/src/detect_msgs/msg/Yolo_Objects.msg" NAME_WE)
 add_custom_target(_detect_msgs_generate_messages_check_deps_${_filename}
-  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "detect_msgs" "/home/a/clothoid_ws/src/detect_msgs/msg/Yolo_Objects.msg" "std_msgs/Header:detect_msgs/Objects"
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "detect_msgs" "/home/a/clothoid_ws/src/detect_msgs/msg/Yolo_Objects.msg" "detect_msgs/Objects:std_msgs/Header"
 )
 
 #
@@ -42,7 +42,7 @@ _generate_msg_cpp(detect_msgs
 _generate_msg_cpp(detect_msgs
   "/home/a/clothoid_ws/src/detect_msgs/msg/Yolo_Objects.msg"
   "${MSG_I_FLAGS}"
-  "/opt/ros/noetic/share/std_msgs/cmake/../msg/Header.msg;/home/a/clothoid_ws/src/detect_msgs/msg/Objects.msg"
+  "/home/a/clothoid_ws/src/detect_msgs/msg/Objects.msg;/opt/ros/noetic/share/std_msgs/cmake/../msg/Header.msg"
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/detect_msgs
 )
 
@@ -83,7 +83,7 @@ _generate_msg_eus(detect_msgs
 _generate_msg_eus(detect_msgs
   "/home/a/clothoid_ws/src/detect_msgs/msg/Yolo_Objects.msg"
   "${MSG_I_FLAGS}"
-  "/opt/ros/noetic/share/std_msgs/cmake/../msg/Header.msg;/home/a/clothoid_ws/src/detect_msgs/msg/Objects.msg"
+  "/home/a/clothoid_ws/src/detect_msgs/msg/Objects.msg;/opt/ros/noetic/share/std_msgs/cmake/../msg/Header.msg"
   ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/detect_msgs
 )
 
@@ -124,7 +124,7 @@ _generate_msg_lisp(detect_msgs
 _generate_msg_lisp(detect_msgs
   "/home/a/clothoid_ws/src/detect_msgs/msg/Yolo_Objects.msg"
   "${MSG_I_FLAGS}"
-  "/opt/ros/noetic/share/std_msgs/cmake/../msg/Header.msg;/home/a/clothoid_ws/src/detect_msgs/msg/Objects.msg"
+  "/home/a/clothoid_ws/src/detect_msgs/msg/Objects.msg;/opt/ros/noetic/share/std_msgs/cmake/../msg/Header.msg"
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/detect_msgs
 )
 
@@ -165,7 +165,7 @@ _generate_msg_nodejs(detect_msgs
 _generate_msg_nodejs(detect_msgs
   "/home/a/clothoid_ws/src/detect_msgs/msg/Yolo_Objects.msg"
   "${MSG_I_FLAGS}"
-  "/opt/ros/noetic/share/std_msgs/cmake/../msg/Header.msg;/home/a/clothoid_ws/src/detect_msgs/msg/Objects.msg"
+  "/home/a/clothoid_ws/src/detect_msgs/msg/Objects.msg;/opt/ros/noetic/share/std_msgs/cmake/../msg/Header.msg"
   ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/detect_msgs
 )
 
@@ -206,7 +206,7 @@ _generate_msg_py(detect_msgs
 _generate_msg_py(detect_msgs
   "/home/a/clothoid_ws/src/detect_msgs/msg/Yolo_Objects.msg"
   "${MSG_I_FLAGS}"
-  "/opt/ros/noetic/share/std_msgs/cmake/../msg/Header.msg;/home/a/clothoid_ws/src/detect_msgs/msg/Objects.msg"
+  "/home/a/clothoid_ws/src/detect_msgs/msg/Objects.msg;/opt/ros/noetic/share/std_msgs/cmake/../msg/Header.msg"
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/detect_msgs
 )
 
