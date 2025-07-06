@@ -192,8 +192,7 @@ void Object_Detection::convert_msg(
         if (matched_px.size() < static_cast<size_t>(CLUSTER_MIN_SIZE)) continue;
 
         /* ③ ROI(원형) 필터 ─ bbox 중심 기준 -------------------------- */
-        const cv::Point2d c2d(cx, cy);   // ★ centroid 대신 bbox 중심 사용
-            
+        const cv::Point2d c2d(cx, cy);
         pcl::PointCloud<pcl::PointXYZ>::Ptr roi(new pcl::PointCloud<pcl::PointXYZ>);
         for (size_t i = 0; i < matched_px.size(); ++i)
             if (cv::norm(matched_px[i] - c2d) <= ROI_RADIUS_PX)
@@ -201,56 +200,53 @@ void Object_Detection::convert_msg(
             
         if (roi->points.size() < static_cast<size_t>(CLUSTER_MIN_SIZE))
             continue;
-
+            
         /* ④ 지면 제거(RANSAC) -------------------------------------- */
+        pcl::PointCloud<pcl::PointXYZ>::Ptr roi_ng(new pcl::PointCloud<pcl::PointXYZ>);
         {
             std::vector<cv::Point3f> tmp;  tmp.reserve(roi->points.size());
             for (const auto& p : *roi) tmp.emplace_back(p.x, p.y, p.z);
-
+        
             const std::vector<int> keep = remove_ground_ransac(tmp, GROUND_THRESH);
             if (keep.empty()) continue;
-
-            pcl::PointCloud<pcl::PointXYZ>::Ptr ng(new pcl::PointCloud<pcl::PointXYZ>);
-            ng->points.reserve(keep.size());
-            for (int idx : keep) ng->points.push_back(roi->points[idx]);
-            roi = ng;                                   // ground-free
+        
+            roi_ng->points.reserve(keep.size());
+            for (int id : keep) roi_ng->points.push_back(roi->points[id]);
         }
-
-        /* ⑤ Euclidean 클러스터링 ----------------------------------- */
+        /* ―― 여기서부터 roi_ng 는 “지면 제거 + 원형 필터” 점 전체 ---------- */
+        
+        /* ⑤ Euclidean 클러스터링 (centroid 계산 용) ------------------- */
         pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
         std::vector<pcl::PointIndices> clusters;
-
+        
         pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
         ec.setClusterTolerance(CLUSTER_TOLERANCE);
         ec.setMinClusterSize(CLUSTER_MIN_SIZE);
         ec.setMaxClusterSize(CLUSTER_MAX_SIZE);
         ec.setSearchMethod(tree);
-        ec.setInputCloud(roi);
+        ec.setInputCloud(roi_ng);
         ec.extract(clusters);
         if (clusters.empty()) continue;
-
+        
+        /* ⑥ centroid = 가장 큰 클러스터 평균 ------------------------- */
         const auto& largest = *std::max_element(
-            clusters.begin(), clusters.end(),
-            [](const auto& a, const auto& b){ return a.indices.size() < b.indices.size(); });
-
-        /* ⑥ centroid 계산 ----------------------------------------- */
-        double sx = 0.0, sy = 0.0;
+                clusters.begin(), clusters.end(),
+                [](const auto& a, const auto& b){ return a.indices.size() < b.indices.size(); });
+        
+        double sx = 0, sy = 0;
         for (int idx : largest.indices) {
-            sx += roi->points[idx].x;
-            sy += roi->points[idx].y;
+            sx += roi_ng->points[idx].x;
+            sy += roi_ng->points[idx].y;
         }
         cur_centroids.emplace_back(sx / largest.indices.size(),
                                    sy / largest.indices.size());
-
-        /* ⑥-b) 2-D 시각화 (선택) ----------------------------------- */
-        cv::rectangle(camera_image,
-                      {static_cast<int>(x1), static_cast<int>(y1)},
-                      {static_cast<int>(x2), static_cast<int>(y2)},
-                      {0,255,0}, 2);
+        
+        /* ⑦ 시각화 -------------------------------------------------- */
+        cv::rectangle(camera_image, {int(x1),int(y1)}, {int(x2),int(y2)}, {0,255,0}, 2);
         cv::circle(camera_image, c2d, 4, {0,0,255}, 2);
-
-        /* ⑦ ROI 점을 최종 cloud 로 누적 ---------------------------- */
-        *out_cloud += *roi;
+        
+        /* ⑧ ⇒ cloud_fillter 에는 “클러스터링 안 거친” 점 전부 publish */
+        *out_cloud += *roi_ng;   // roi_ng : 지면제거 + 원형필터 (클러스터링 X)
     }
 
     /* ⑧ centroid & tracker 처리 ------------------------------------ */

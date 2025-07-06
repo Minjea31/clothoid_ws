@@ -114,6 +114,10 @@ sensor_msgs/PointCloud.h
 pcl_conversions/pcl_conversions.h
 -
 
+/home/a/clothoid_ws/src/Object_detect/src/main.cpp
+detection.h
+/home/a/clothoid_ws/src/Object_detect/src/detection.h
+
 /opt/ros/noetic/include/cv_bridge/cv_bridge.h
 sensor_msgs/Image.h
 -
