@@ -1,3 +1,53 @@
+/*****************************************************************************************
+ *  ▷▷  Object_Detection 전체 파이프라인 한눈에 보기  ◁◁
+ *
+ *                             +----------------------------+
+ *       topics in  ─────────► | detectionCallback()        |
+ *  (LiDAR / Image / YOLO)     |   ① sensor_msgs sync       | //카메라 30hz -> 10hz
+ *                             +-------------┬--------------+
+ *                                           │
+ *                                           ▼
+ *                             +----------------------------+
+ *                             | filter_pointcloud()        |   // *선택적 사전 필터*
+ *                             |   ├─ dror_filter()         |   // ① 밀도 기반 outlier
+ *                             |   └─ remove_ground_ransac()|   // ② 지면 평면 제거
+ *                             +-------------┬--------------+
+ *                                           │ (lidar_points / projected_list 축소)
+ *                                           ▼
+ *                             +----------------------------+
+ *                             | convert_msg()              |
+ *                             |   ① bbox ↔ LiDAR 점 매칭   |
+ *                             |   ② ROI(원) + Euclidean    |
+ *                             |      클러스터링            |
+ *                             |   ③ centroid 계산          |
+ *                             +-------------┬--------------+
+ *                                           │
+ *                                           ▼
+ *                             +----------------------------+
+ *                             | track_and_visualize()      |
+ *                             |   └─ match_and_update_…    |
+ *                             |         └─ KalmanTracker   |
+ *                             |             • predict()    |
+ *                             |             • correct()    |
+ *                             +-------------┬--------------+
+ *         2-D pixel centroid                │                  Kalman 예측
+ *       (관측 or 예측)                      └────────┐
+ *                                                    │
+ *                                                    ▼
+ *                             +----------------------------+
+ *                             | publish_2D_pointcloud()    |  // /cloud_centroid 토픽
+ *                             +----------------------------+
+ *
+ *  ※  흐름 정리
+ *      1. `detectionCallback()` 에서 3-sensor 메시지 동기화 후 진입
+ *      2. LiDAR 포인트를 **DROR + RANSAC** 으로 깨끗이 → 이미지 투영
+ *      3. YOLO bbox 안의 점을 클러스터링 → **centroid 추출**
+ *      4. **KalmanTracker** 로 ID 유지 & 보간 / 시각화
+ *      5. centroid 결과를 `sensor_msgs::PointCloud` 로 **Publish**
+ *
+ *****************************************************************************************/
+
+
 #include "detection.h"
 
 #include <sensor_msgs/CompressedImage.h>
@@ -48,16 +98,27 @@ Object_Detection::Object_Detection(ros::NodeHandle* nodeHandle)
     cluster_min       = CLUSTER_MIN_SIZE;
     cluster_max       = CLUSTER_MAX_SIZE;
 
-    /* 메시지 필터 동기화 */
-    message_filters::Subscriber<sensor_msgs::PointCloud2> subL(nh,lidar_topic,10);
-    message_filters::Subscriber<sensor_msgs::CompressedImage> subC(nh,camera_topic,10);
-    message_filters::Subscriber<detect_msgs::Yolo_Objects> subY(nh,yolo_topic,10);
-    using Sync = message_filters::sync_policies::ApproximateTime<
-                    sensor_msgs::PointCloud2,
-                    sensor_msgs::CompressedImage,
-                    detect_msgs::Yolo_Objects>;
-    auto syncer = std::make_shared< message_filters::Synchronizer<Sync> >(Sync(10),subL,subC,subY);
-    syncer->registerCallback(boost::bind(&Object_Detection::detectionCallback,this,_1,_2,_3));
+   /* ── 메시지 필터 동기화: slop = 0.05 s (±50 ms) ── */
+    message_filters::Subscriber<sensor_msgs::PointCloud2>     subL(nh, lidar_topic , 10);
+    message_filters::Subscriber<sensor_msgs::CompressedImage> subC(nh, camera_topic, 10);
+    message_filters::Subscriber<detect_msgs::Yolo_Objects>    subY(nh, yolo_topic  , 10);
+
+    using SyncPolicy = message_filters::sync_policies::ApproximateTime<
+                         sensor_msgs::PointCloud2,
+                         sensor_msgs::CompressedImage,
+                         detect_msgs::Yolo_Objects>;
+
+    const int QUEUE_SIZE = 20;                    // 버퍼 길이
+    auto syncer = std::make_shared< message_filters::Synchronizer<SyncPolicy> >(
+                      SyncPolicy(QUEUE_SIZE),     // ★ 생성자엔 queue_size 만
+                      subL, subC, subY);
+
+    /* 슬롭(허용 간격) 설정 */
+    syncer->setMaxIntervalDuration( ros::Duration(0.05) );   // ±50 ms
+
+    /* 콜백 등록 */
+    syncer->registerCallback(
+        boost::bind(&Object_Detection::detectionCallback, this, _1, _2, _3));
 
     read_projection_matrix();
     ROS_INFO("start detection");
@@ -70,6 +131,18 @@ void Object_Detection::detectionCallback(const sensor_msgs::PointCloud2::ConstPt
                                          const sensor_msgs::CompressedImage::ConstPtr& cam_msg,
                                          const detect_msgs::Yolo_Objects::ConstPtr& yolo_msg)
 {
+    /* ─────────────── 타임스탬프 디버그 출력 ─────────────── */
+    const ros::Time& t_lidar = lidar_msg->header.stamp;
+    const ros::Time& t_cam   = cam_msg->header.stamp;
+    const double diff_ms = (t_cam - t_lidar).toSec() * 1e3;     // [+] 양수면 카메라가 더 늦음
+
+    ROS_INFO_STREAM( std::fixed << std::setprecision(3)
+                     << "[SYNC DEBUG] LiDAR "   << t_lidar
+                     << " | Camera "            << t_cam
+                     << " | Δ = " << diff_ms << "  ms" );
+
+    /* ---------------------------------------------------- */
+        
     camera_image = cv_bridge::toCvCopy(cam_msg,"bgr8")->image;
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr pc(new pcl::PointCloud<pcl::PointXYZI>());
@@ -322,4 +395,3 @@ Object_Detection::ground_filter(pcl::PointCloud<pcl::PointXYZ> cloud){
             }
     return filtered;
 }
-

@@ -80,7 +80,7 @@ static constexpr double GROUND_THRESH       = 0.2;   // m
 
 
 /* 4) Euclidean 클러스터링 ↓↓↓ */
-static constexpr double CLUSTER_TOLERANCE   = 0.5;   // m
+static constexpr double CLUSTER_TOLERANCE   = 0.3;   // m
 /*  - 점‑점 연결 임계 거리.  
  *    작게 → 객체가 더 세분화(과분할)  
  *    크게 → 여러 객체가 하나로 뭉칠 위험                                           */
@@ -97,24 +97,24 @@ static constexpr int    CLUSTER_MAX_SIZE    = 100;   // points
 
 
 /* 5) 이미지 ROI / bbox 후처리 ↓↓↓ */
-static constexpr int    MIN_BBOX_EDGE_PX    = 15;    // pixel
+static constexpr int    MIN_BBOX_EDGE_PX    = 0;    // pixel
 /*  - YOLO bbox 최소 길이·높이.  
  *    작게 → 작은 bbox 유지(소형 물체 검출)  
  *    크게 → 작은 물체 필터링(잡음 ↓)                                            */
 
-static constexpr double ROI_RADIUS_PX       = 20.0;  // pixel
+static constexpr double ROI_RADIUS_PX       = 15.0;  // pixel
 /*  - bbox 내부에서 LiDAR 점 재선택 시 원형 반경.  
  *    작게 → 중심부 집중(외곽 잡음 ↓)  
  *    크게 → 더 많은 점 포함(대상 전체 포착)                                       */
 
 
 /* 6) 추적‑매칭 ↓↓↓ */
-static constexpr int    TRACKER_MAX_MISS    = 3;     // frames
+static constexpr int    TRACKER_MAX_MISS    = 5;     // frames
 /*  - 추적기 미검출 허용 프레임 수.  
  *    작게 → 빠른 삭제(유실↑)  
  *    크게 → 오래 유지(유령 Tracker ↑)                                            */
 
-static constexpr double MATCH_DIST          = 1.0;   // 2‑D 이미지 거리(px) 또는 정규화 거리
+static constexpr double MATCH_DIST          = 10.0;   // 2‑D 이미지 거리(px) 또는 정규화 거리
 /*  - 칼만 예측 ↔ 관측 센트로이드 매칭 허용 거리.  
  *    작게 → 보수적 매칭(스킵 ↑)  
  *    크게 → 오매칭(잘못 연결) 위험 ↑ 
@@ -195,4 +195,3 @@ public:
     explicit Object_Detection(ros::NodeHandle* nh);
     ~Object_Detection();
 };
-

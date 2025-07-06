@@ -6,7 +6,7 @@
     <param name="yaml_cfg"    value="$(find yolov8)/best.yaml"/>
     <param name="pt_weights"  value="$(find yolov8)/best.pt"/>
     <!-- confidence threshold -->
-    <param name="confidence"  value="0.6"/>
+    <param name="confidence"  value="0.5"/>
     <param name="frame_id" value="camera_link"/>
   </node>
 </launch>
