@@ -2,29 +2,42 @@
 import rospy
 import numpy as np
 import cv2
+import logging
+import warnings
 from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Header
 from detect_msgs.msg import Yolo_Objects, Objects
 from ultralytics import YOLO
 
+# 경고 및 로그 억제
+logging.getLogger("ultralytics").setLevel(logging.ERROR)
+warnings.filterwarnings("ignore", category=UserWarning)
+
 class YoloDetectNode:
     def __init__(self):
         rospy.init_node("yolo_detect_node")
 
-        # params
+        # 클래스 이름 매핑
+        self.class_names = {
+            0: "ERP-42",
+            1: "drum",
+            2: "robbercone"
+        }
+
+        # 파라미터 설정
         source_topic  = rospy.get_param("~source", "/camera/image_raw/compressed")
         yaml_cfg      = rospy.get_param("~yaml_cfg", "./best.yaml")
         pt_weights    = rospy.get_param("~pt_weights", "./best.pt")
         self.conf_thres = rospy.get_param("~confidence", 0.7)
 
-        # publisher
+        # 퍼블리셔 생성
         self.pub = rospy.Publisher("yolov8_pub", Yolo_Objects, queue_size=1)
 
         # 모델 로드
         self.model = YOLO(yaml_cfg, task='detect').load(pt_weights)
         rospy.loginfo(f"[yolo_detect_node] Model loaded: {yaml_cfg}, {pt_weights}")
 
-        # 구독
+        # 서브스크라이버 등록
         rospy.Subscriber(source_topic, CompressedImage, self.callback,
                          queue_size=1, buff_size=2**24)
         rospy.loginfo(f"[yolo_detect_node] Subscribed to {source_topic}")
@@ -38,15 +51,16 @@ class YoloDetectNode:
         # 2) 추론
         results = self.model(frame, imgsz=(h0, w0), conf=self.conf_thres)[0]
 
-        # 3) Yolo_Objects 메시지 구성
+        # 3) Yolo_Objects 메시지 생성
+        frame_id = msg.header.frame_id if msg.header.frame_id else "camera_link"
         out = Yolo_Objects()
-        out.header = Header(stamp=msg.header.stamp,
-                            frame_id=msg.header.frame_id or "camera_link")
+        out.header = Header(stamp=msg.header.stamp, frame_id=frame_id)
 
-        # Objects 배열 채우기
+        # 4) 감지 결과 처리
         for idx, box in enumerate(results.boxes):
             cls_id = int(box.cls.cpu().item())
             x1, y1, x2, y2 = box.xyxy[0].cpu().tolist()
+
             obj = Objects()
             obj.Class = cls_id
             obj.id    = idx
@@ -56,11 +70,24 @@ class YoloDetectNode:
             obj.y2    = int(y2)
             out.yolo_objects.append(obj)
 
-        # 4) 퍼블리시
+            class_name = self.class_names.get(cls_id, f"unknown({cls_id})")
+            rospy.loginfo(f"✅ 감지됨: ID={cls_id}, Class={class_name}")
+
+            # 🔴 BBox 시각화
+            cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
+            cv2.putText(frame, class_name, (int(x1), int(y1) - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+
+        # 5) 결과 퍼블리시
         self.pub.publish(out)
 
     def spin(self):
-        rospy.spin()
+        try:
+            rospy.spin()
+        except KeyboardInterrupt:
+            rospy.loginfo("Shutting down YOLOv8 viewer.")
+        finally:
+            cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     node = YoloDetectNode()

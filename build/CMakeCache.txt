@@ -718,12 +718,6 @@ detect_msgs_DIR:PATH=/home/a/clothoid_ws/devel/share/detect_msgs/cmake
 //Value Computed by CMake
 detect_msgs_SOURCE_DIR:STATIC=/home/a/clothoid_ws/src/detect_msgs
 
-//Value Computed by CMake
-detect_ws_BINARY_DIR:STATIC=/home/a/clothoid_ws/build/detect_ws
-
-//Value Computed by CMake
-detect_ws_SOURCE_DIR:STATIC=/home/a/clothoid_ws/src/detect_ws
-
 //The directory containing a CMake configuration file for dynamic_reconfigure.
 dynamic_reconfigure_DIR:PATH=/opt/ros/noetic/share/dynamic_reconfigure/cmake
 
@@ -931,12 +925,6 @@ yolov8_BINARY_DIR:STATIC=/home/a/clothoid_ws/build/yolov8
 
 //Value Computed by CMake
 yolov8_SOURCE_DIR:STATIC=/home/a/clothoid_ws/src/yolov8
-
-//Value Computed by CMake
-yolov8_ws_BINARY_DIR:STATIC=/home/a/clothoid_ws/build/yolov8_ws
-
-//Value Computed by CMake
-yolov8_ws_SOURCE_DIR:STATIC=/home/a/clothoid_ws/src/yolov8_ws
 
 
 ########################

@@ -51,8 +51,6 @@ ros/ros.h
 -
 eigen3/Eigen/Core
 -
-eigen3/Eigen/Eigen
--
 eigen3/Eigen/Geometry
 -
 opencv2/opencv.hpp
@@ -79,6 +77,8 @@ sensor_msgs/PointCloud.h
 -
 sensor_msgs/CompressedImage.h
 -
+sensor_msgs/PointCloud2.h
+-
 detect_msgs/Yolo_Objects.h
 -
 message_filters/subscriber.h
@@ -86,6 +86,22 @@ message_filters/subscriber.h
 message_filters/synchronizer.h
 -
 message_filters/sync_policies/approximate_time.h
+-
+algorithm
+-
+numeric
+-
+random
+-
+map
+-
+set
+-
+vector
+-
+string
+-
+cstring
 -
 
 /home/a/clothoid_ws/src/Object_detect/src/detection.cpp
@@ -96,10 +112,6 @@ sensor_msgs/CompressedImage.h
 sensor_msgs/PointCloud.h
 -
 pcl_conversions/pcl_conversions.h
--
-
-/home/a/clothoid_ws/src/Object_detect/src/main.cpp
-detection.h
 -
 
 /opt/ros/noetic/include/cv_bridge/cv_bridge.h
