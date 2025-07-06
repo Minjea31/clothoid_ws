@@ -31,7 +31,7 @@ class YoloDetectNode:
         source_topic  = rospy.get_param("~source",     "/camera/image_raw/compressed")
         yaml_cfg      = rospy.get_param("~yaml_cfg",   "./best.yaml")
         pt_weights    = rospy.get_param("~pt_weights", "./best.pt")
-        self.conf_thres = rospy.get_param("~confidence", 0.7)
+        self.conf_thres = rospy.get_param("~confidence", 0.5)
 
         # (4) 퍼블리셔
         self.pub = rospy.Publisher("yolov8_pub", Yolo_Objects, queue_size=1)
@@ -103,4 +103,3 @@ class YoloDetectNode:
 if __name__ == "__main__":
     node = YoloDetectNode()
     node.spin()
-ㅊ
