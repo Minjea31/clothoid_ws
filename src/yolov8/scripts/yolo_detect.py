@@ -87,8 +87,8 @@ class YoloDetectNode:
         self.pub.publish(out)
 
         # 6) 실시간 창 출력
-        cv2.imshow(self.win_name, frame)
-        cv2.waitKey(1)
+        ##cv2.imshow(self.win_name, frame)
+        ##cv2.waitKey(1)
 
     # ──────────────────────────────────────────────────────────────
     def spin(self):

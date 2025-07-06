@@ -87,6 +87,7 @@ Object_Detection::Object_Detection(ros::NodeHandle* nodeHandle)
 : nh(*nodeHandle), counter(0), is_first_frame(true), alpha(0.3)
 {
     cloud_centroid = nh.advertise<sensor_msgs::PointCloud>("/cloud_centroid",1);
+    cloud_fillter_pub = nh.advertise<sensor_msgs::PointCloud2>("/cloud_fillter",  1);  // ★ 추가
 
     nh.param<std::string>("lidar_topic",  lidar_topic,  "/livox/lidar");
     nh.param<std::string>("camera_topic", camera_topic, "/camera/image_raw/compressed");
@@ -130,19 +131,7 @@ Object_Detection::~Object_Detection(){ ROS_INFO("finish detection"); }
 void Object_Detection::detectionCallback(const sensor_msgs::PointCloud2::ConstPtr& lidar_msg,
                                          const sensor_msgs::CompressedImage::ConstPtr& cam_msg,
                                          const detect_msgs::Yolo_Objects::ConstPtr& yolo_msg)
-{
-    /* ─────────────── 타임스탬프 디버그 출력 ─────────────── */
-    const ros::Time& t_lidar = lidar_msg->header.stamp;
-    const ros::Time& t_cam   = cam_msg->header.stamp;
-    const double diff_ms = (t_cam - t_lidar).toSec() * 1e3;     // [+] 양수면 카메라가 더 늦음
-
-    ROS_INFO_STREAM( std::fixed << std::setprecision(3)
-                     << "[SYNC DEBUG] LiDAR "   << t_lidar
-                     << " | Camera "            << t_cam
-                     << " | Δ = " << diff_ms << "  ms" );
-
-    /* ---------------------------------------------------- */
-        
+{       
     camera_image = cv_bridge::toCvCopy(cam_msg,"bgr8")->image;
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr pc(new pcl::PointCloud<pcl::PointXYZI>());
@@ -159,77 +148,124 @@ void Object_Detection::detectionCallback(const sensor_msgs::PointCloud2::ConstPt
     }
 }
 
-/* ===== convert_msg (YOLO + 클러스터) ===== */
-void Object_Detection::convert_msg(const detect_msgs::Yolo_Objects::ConstPtr& yolo,
-                                   const std_msgs::Header& header)
+/* ===== convert_msg (YOLO + 클러스터 & 필터 결과 Publish) ===== */
+void Object_Detection::convert_msg(
+        const detect_msgs::Yolo_Objects::ConstPtr& yolo,
+        const std_msgs::Header&                    header)
 {
-    std::vector<cv::Point2d> cur_centroids;
+    std::vector<cv::Point2d>             cur_centroids;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr out_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    out_cloud->reserve(1024);                // 대략 – 필요에 따라 조정
 
-    for(const auto& Y : yolo->yolo_objects){
-        int x1=Y.x1, y1=Y.y1, x2=Y.x2, y2=Y.y2;
+    for (const auto& Y : yolo->yolo_objects)
+    {
+        /* ① bbox 축소 ------------------------------------------------ */
+        double x1 = Y.x1, y1 = Y.y1, x2 = Y.x2, y2 = Y.y2;
 
-        /* ▶ 상수 사용 */
-        if(x2-x1 < MIN_BBOX_EDGE_PX || y2-y1 < MIN_BBOX_EDGE_PX) continue;
+        const double cx = 0.5 * (x1 + x2);
+        const double cy = 0.5 * (y1 + y2);
+        const double hw = 0.5 * (x2 - x1) * BBOX_SCALE_RATIO;
+        const double hh = 0.5 * (y2 - y1) * BBOX_SCALE_RATIO;
 
-        std::vector<cv::Point2d> matched;
-        pcl::PointCloud<pcl::PointXYZ>::Ptr local(new pcl::PointCloud<pcl::PointXYZ>());
-        for(size_t i=0;i<projected_list.size();++i){
-            double u=projected_list[i].x, v=projected_list[i].y;
-            if(std::isnan(u)||std::isnan(v)) continue;
-            if(u>=x1 && u<=x2 && v>=y1 && v<=y2){
-                matched.emplace_back(u,v);
-                local->points.emplace_back(lidar_points[i].x,lidar_points[i].y,lidar_points[i].z);
+        x1 = std::max(0.0,                         cx - hw);
+        y1 = std::max(0.0,                         cy - hh);
+        x2 = std::min<double>(camera_image.cols-1, cx + hw);
+        y2 = std::min<double>(camera_image.rows-1, cy + hh);
+
+        if ((x2 - x1) < MIN_BBOX_EDGE_PX || (y2 - y1) < MIN_BBOX_EDGE_PX)
+            continue;
+
+        /* ② bbox 내 LiDAR 점 추출 ----------------------------------- */
+        std::vector<cv::Point2d> matched_px;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr local(new pcl::PointCloud<pcl::PointXYZ>);
+
+        for (size_t i = 0; i < projected_list.size(); ++i) {
+            double u = projected_list[i].x, v = projected_list[i].y;
+            if (std::isnan(u) || std::isnan(v)) continue;
+            if (u >= x1 && u <= x2 && v >= y1 && v <= y2) {
+                matched_px.emplace_back(u, v);
+                local->points.emplace_back(lidar_points[i].x,
+                                            lidar_points[i].y,
+                                            lidar_points[i].z);
             }
         }
-        if(matched.size()<CLUSTER_MIN_SIZE) continue;
+        if (matched_px.size() < static_cast<size_t>(CLUSTER_MIN_SIZE)) continue;
 
-        double cu=0,cv=0; for(const auto& p:matched){cu+=p.x;cv+=p.y;}
-        cu/=matched.size(); cv/=matched.size();
-        double R = ROI_RADIUS_PX;                      // ▶ 상수 사용
-        pcl::PointCloud<pcl::PointXYZ>::Ptr filt(new pcl::PointCloud<pcl::PointXYZ>());
-        for(size_t i=0;i<matched.size();++i){
-            if(cv::norm(matched[i]-cv::Point2d(cu,cv))<=R){
-                filt->points.push_back(local->points[i]);
-                cv::circle(camera_image,matched[i],2,{0,255,0},-1);
-            }
+        /* ③ ROI(원형) 필터 ─ bbox 중심 기준 -------------------------- */
+        const cv::Point2d c2d(cx, cy);   // ★ centroid 대신 bbox 중심 사용
+            
+        pcl::PointCloud<pcl::PointXYZ>::Ptr roi(new pcl::PointCloud<pcl::PointXYZ>);
+        for (size_t i = 0; i < matched_px.size(); ++i)
+            if (cv::norm(matched_px[i] - c2d) <= ROI_RADIUS_PX)
+                roi->points.push_back(local->points[i]);
+            
+        if (roi->points.size() < static_cast<size_t>(CLUSTER_MIN_SIZE))
+            continue;
+
+        /* ④ 지면 제거(RANSAC) -------------------------------------- */
+        {
+            std::vector<cv::Point3f> tmp;  tmp.reserve(roi->points.size());
+            for (const auto& p : *roi) tmp.emplace_back(p.x, p.y, p.z);
+
+            const std::vector<int> keep = remove_ground_ransac(tmp, GROUND_THRESH);
+            if (keep.empty()) continue;
+
+            pcl::PointCloud<pcl::PointXYZ>::Ptr ng(new pcl::PointCloud<pcl::PointXYZ>);
+            ng->points.reserve(keep.size());
+            for (int idx : keep) ng->points.push_back(roi->points[idx]);
+            roi = ng;                                   // ground-free
         }
-        if(filt->points.size()<CLUSTER_MIN_SIZE) continue;
 
-        /* 클러스터링 파라미터를 상수로 */
-        pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
+        /* ⑤ Euclidean 클러스터링 ----------------------------------- */
+        pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
         std::vector<pcl::PointIndices> clusters;
+
         pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
         ec.setClusterTolerance(CLUSTER_TOLERANCE);
         ec.setMinClusterSize(CLUSTER_MIN_SIZE);
         ec.setMaxClusterSize(CLUSTER_MAX_SIZE);
         ec.setSearchMethod(tree);
-        ec.setInputCloud(filt);
+        ec.setInputCloud(roi);
         ec.extract(clusters);
-        if(clusters.empty()) continue;
+        if (clusters.empty()) continue;
 
-        auto& largest=*std::max_element(clusters.begin(),clusters.end(),
-                   [](auto&a,auto&b){return a.indices.size()<b.indices.size();});
-        double sx=0,sy=0;
-        for(int idx:largest.indices){sx+=filt->points[idx].x; sy+=filt->points[idx].y;}
-        cur_centroids.emplace_back(sx/largest.indices.size(), sy/largest.indices.size());
+        const auto& largest = *std::max_element(
+            clusters.begin(), clusters.end(),
+            [](const auto& a, const auto& b){ return a.indices.size() < b.indices.size(); });
 
-        cv::circle(camera_image,{(int)cu,(int)cv},5,{0,0,255},2);
-    }
-
-    /* 스무딩 … (변경 없음) */
-    std::vector<cv::Point2d> smoothed;
-    if(is_first_frame){ smoothed=cur_centroids; is_first_frame=false; }
-    else{
-        for(size_t i=0;i<cur_centroids.size();++i){
-            if(i>=prev_centroids.size()) smoothed.push_back(cur_centroids[i]);
-            else                         smoothed.push_back(cur_centroids[i]);
+        /* ⑥ centroid 계산 ----------------------------------------- */
+        double sx = 0.0, sy = 0.0;
+        for (int idx : largest.indices) {
+            sx += roi->points[idx].x;
+            sy += roi->points[idx].y;
         }
+        cur_centroids.emplace_back(sx / largest.indices.size(),
+                                   sy / largest.indices.size());
+
+        /* ⑥-b) 2-D 시각화 (선택) ----------------------------------- */
+        cv::rectangle(camera_image,
+                      {static_cast<int>(x1), static_cast<int>(y1)},
+                      {static_cast<int>(x2), static_cast<int>(y2)},
+                      {0,255,0}, 2);
+        cv::circle(camera_image, c2d, 4, {0,0,255}, 2);
+
+        /* ⑦ ROI 점을 최종 cloud 로 누적 ---------------------------- */
+        *out_cloud += *roi;
     }
-    prev_centroids=smoothed;
 
-    track_and_visualize(smoothed);
+    /* ⑧ centroid & tracker 처리 ------------------------------------ */
+    prev_centroids = cur_centroids;
+    track_and_visualize(prev_centroids);
+    publish_2D_pointcloud(prev_centroids, header);
 
-    publish_2D_pointcloud(smoothed,header);
+    /* ⑨ 필터된 3-D 점 Publish  (/cloud_fillter) -------------------- */
+    if (!out_cloud->empty())
+    {
+        sensor_msgs::PointCloud2 msg_pc2;
+        pcl::toROSMsg(*out_cloud, msg_pc2);
+        msg_pc2.header = header;          // stamp, frame_id 유지
+        cloud_fillter_pub.publish(msg_pc2);
+    }
 }
 
 /* ===== track_and_visualize + 매칭 ===== */
@@ -353,12 +389,12 @@ void Object_Detection::publish_2D_pointcloud(const std::vector<cv::Point2d>& pts
     cloud_centroid.publish(cloud);
 }
 void Object_Detection::read_projection_matrix(){
-    double fx=1.8555e3, fy=1.8549e3, cx=950.6236, cy=575.6943;
+    double fx=1.7900e3, fy=1.7869e3, cx=960.4433, cy=595.1015;
     cv::Mat K=(cv::Mat_<double>(3,3)<<fx,0,cx, 0,fy,cy, 0,0,1);
     cv::Mat T=(cv::Mat_<double>(3,4)<<
-        -0.0259,-0.9994,0.0212,0.0269,
-        -0.0177,-0.0207,-0.9996,-0.1107,
-         0.9995,-0.0263,-0.0172,-0.0358);
+        -0.0119,-0.9999,-0.0025, 0.0593,
+        -0.0423, 0.0030,-0.9991,-0.0446,
+         0.9990,-0.0118,-0.0423,-0.1091);
     projection_matrix = K*T;
 }
 
