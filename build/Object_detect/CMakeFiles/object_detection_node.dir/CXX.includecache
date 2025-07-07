@@ -55,13 +55,15 @@ eigen3/Eigen/Geometry
 -
 opencv2/opencv.hpp
 -
+opencv2/highgui.hpp
+-
 cv_bridge/cv_bridge.h
 -
 pcl_ros/point_cloud.h
 -
 pcl/common/transforms.h
 -
-pcl/filters/voxel_grid.h
+pcl/filters/conditional_removal.h
 -
 pcl/search/kdtree.h
 -
@@ -105,7 +107,11 @@ cstring
 /home/a/clothoid_ws/src/Object_detect/src/detection.cpp
 detection.h
 /home/a/clothoid_ws/src/Object_detect/src/detection.h
-numeric
+sensor_msgs/CompressedImage.h
+-
+sensor_msgs/PointCloud.h
+-
+pcl_conversions/pcl_conversions.h
 -
 
 /home/a/clothoid_ws/src/Object_detect/src/main.cpp
@@ -4010,6 +4016,16 @@ boost/fusion/sequence/intrinsic/at_key.hpp
 boost/optional.hpp
 -
 
+/usr/include/pcl-1.10/pcl/filters/conditional_removal.h
+pcl/pcl_macros.h
+-
+pcl/common/eigen.h
+-
+pcl/filters/filter.h
+-
+pcl/filters/impl/conditional_removal.hpp
+-
+
 /usr/include/pcl-1.10/pcl/filters/filter.h
 pcl/pcl_base.h
 -
@@ -4026,30 +4042,18 @@ pcl/PointIndices.h
 pcl/filters/impl/filter.hpp
 -
 
+/usr/include/pcl-1.10/pcl/filters/impl/conditional_removal.hpp
+pcl/common/io.h
+-
+pcl/common/copy_point.h
+-
+pcl/filters/conditional_removal.h
+-
+
 /usr/include/pcl-1.10/pcl/filters/impl/filter.hpp
 pcl/pcl_macros.h
 -
 pcl/filters/filter.h
--
-
-/usr/include/pcl-1.10/pcl/filters/impl/voxel_grid.hpp
-pcl/common/centroid.h
--
-pcl/common/common.h
--
-pcl/common/io.h
--
-pcl/filters/voxel_grid.h
--
-
-/usr/include/pcl-1.10/pcl/filters/voxel_grid.h
-pcl/filters/boost.h
--
-pcl/filters/filter.h
--
-map
--
-pcl/filters/impl/voxel_grid.hpp
 -
 
 /usr/include/pcl-1.10/pcl/for_each_type.h

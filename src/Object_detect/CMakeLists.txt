@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(Object_detect)
 
-## Compile as C++14
-add_compile_options(-std=c++14)
+## Require C++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
@@ -15,10 +16,10 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   pcl_ros
   message_filters
-  detect_msgs          # ✅ 메시지 패키지 사용
-  message_generation   # ✅ 메시지 생성용
-  
-  ####자경
+  detect_msgs
+  message_generation
+
+  ## 자경
   rospy
   dynamic_reconfigure
 )
@@ -27,14 +28,10 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(OpenCV REQUIRED)
 find_package(PCL REQUIRED)
 
-
 ## 자경
 generate_dynamic_reconfigure_options(
   cfg/LidarClustering.cfg
 )
-
-
-
 
 ###################################
 ## catkin specific configuration ##
@@ -51,7 +48,7 @@ catkin_package(
     image_transport
     pcl_ros
     message_filters
-    detect_msgs        # ✅ 메시지 런타임 사용
+    detect_msgs
     message_runtime
 )
 
@@ -88,13 +85,11 @@ target_link_libraries(object_detection_node
 ## Install ##
 #############
 
-
 ## 자경
 catkin_install_python(PROGRAMS
   scripts/euclidean_clustering.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-
 
 install(TARGETS object_detection_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
