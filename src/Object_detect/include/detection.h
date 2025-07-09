@@ -24,9 +24,8 @@
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
-#include "oc_sort.h"  // OC-SORT tracker
-
 #include <vector>
+#include <map>
 
 /* ===== Parameters ===== */
 static constexpr double BBOX_SCALE_RATIO  = 0.8;
@@ -39,9 +38,19 @@ static constexpr double MATCH_DIST        = 7.0;
 static constexpr int    TRACKER_MAX_MISS  = 15;
 static constexpr int    MIN_BBOX_EDGE_PX  = 0;
 
-/* ===== simple Detection struct for OC-SORT ===== */
-struct Detection {
-    float x1, y1, x2, y2, score;
+/* ===== Kalman Tracker ===== */
+struct KalmanTracker
+{
+    int id{-1};
+    int miss_count{0};
+    cv::KalmanFilter kf;
+    cv::Point2f last_pos;
+
+    KalmanTracker() = default;
+    KalmanTracker(const cv::Point2f &pt, int tracker_id, float dt = 0.1f);
+    cv::Point2f predict();
+    void update(const cv::Point2f &pt);
+    void miss();
 };
 
 /* ===== Object_Detection ===== */
@@ -58,8 +67,7 @@ private:
     cv::Mat camera_image;
     std::vector<cv::Point3d> lidar_points;
     std::vector<cv::Point2d> projected_list;
-
-    OCSort oc_sort_;  // OC-SORT instance
+    std::vector<cv::Point2d> prev_centroids;
 
     void read_projection_matrix();
     void detectionCallback(const sensor_msgs::PointCloud2::ConstPtr &lidar_msg,
@@ -69,6 +77,10 @@ private:
                      const std_msgs::Header &header);
     void publish_2D_pointcloud(const std::vector<cv::Point2d> &pts,
                                const std_msgs::Header &header);
+    void track_and_visualize(const std::vector<cv::Point2d> &cents);
+    void match_and_update_trackers(const std::vector<cv::Point2f> &cents,
+                                   double match_dist = MATCH_DIST,
+                                   int max_miss = TRACKER_MAX_MISS);
     std::vector<int> remove_ground_ransac(const std::vector<cv::Point3f> &pts,
                                           double threshold = GROUND_THRESH);
 
