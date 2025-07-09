@@ -1325,32 +1325,6 @@ std_srvs_generate_messages_py/fast:
 .PHONY : std_srvs_generate_messages_py/fast
 
 #=============================================================================
-# Target rules for targets named object_detection_node
-
-# Build rule for target.
-object_detection_node: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 object_detection_node
-.PHONY : object_detection_node
-
-# fast build rule for target.
-object_detection_node/fast:
-	$(MAKE) -f Object_detect/CMakeFiles/object_detection_node.dir/build.make Object_detect/CMakeFiles/object_detection_node.dir/build
-.PHONY : object_detection_node/fast
-
-#=============================================================================
-# Target rules for targets named topic_tools_generate_messages_lisp
-
-# Build rule for target.
-topic_tools_generate_messages_lisp: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 topic_tools_generate_messages_lisp
-.PHONY : topic_tools_generate_messages_lisp
-
-# fast build rule for target.
-topic_tools_generate_messages_lisp/fast:
-	$(MAKE) -f Object_detect/CMakeFiles/topic_tools_generate_messages_lisp.dir/build.make Object_detect/CMakeFiles/topic_tools_generate_messages_lisp.dir/build
-.PHONY : topic_tools_generate_messages_lisp/fast
-
-#=============================================================================
 # Target rules for targets named topic_tools_generate_messages_nodejs
 
 # Build rule for target.
@@ -1546,17 +1520,30 @@ tf2_msgs_generate_messages_lisp/fast:
 .PHONY : tf2_msgs_generate_messages_lisp/fast
 
 #=============================================================================
-# Target rules for targets named Object_detect_gencfg
+# Target rules for targets named topic_tools_generate_messages_lisp
 
 # Build rule for target.
-Object_detect_gencfg: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 Object_detect_gencfg
-.PHONY : Object_detect_gencfg
+topic_tools_generate_messages_lisp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 topic_tools_generate_messages_lisp
+.PHONY : topic_tools_generate_messages_lisp
 
 # fast build rule for target.
-Object_detect_gencfg/fast:
-	$(MAKE) -f Object_detect/CMakeFiles/Object_detect_gencfg.dir/build.make Object_detect/CMakeFiles/Object_detect_gencfg.dir/build
-.PHONY : Object_detect_gencfg/fast
+topic_tools_generate_messages_lisp/fast:
+	$(MAKE) -f Object_detect/CMakeFiles/topic_tools_generate_messages_lisp.dir/build.make Object_detect/CMakeFiles/topic_tools_generate_messages_lisp.dir/build
+.PHONY : topic_tools_generate_messages_lisp/fast
+
+#=============================================================================
+# Target rules for targets named object_detection_node
+
+# Build rule for target.
+object_detection_node: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 object_detection_node
+.PHONY : object_detection_node
+
+# fast build rule for target.
+object_detection_node/fast:
+	$(MAKE) -f Object_detect/CMakeFiles/object_detection_node.dir/build.make Object_detect/CMakeFiles/object_detection_node.dir/build
+.PHONY : object_detection_node/fast
 
 # Help Target
 help:
@@ -1660,8 +1647,6 @@ help:
 	@echo "... nodelet_generate_messages_py"
 	@echo "... std_srvs_generate_messages_nodejs"
 	@echo "... std_srvs_generate_messages_py"
-	@echo "... object_detection_node"
-	@echo "... topic_tools_generate_messages_lisp"
 	@echo "... topic_tools_generate_messages_nodejs"
 	@echo "... tf2_msgs_generate_messages_eus"
 	@echo "... topic_tools_generate_messages_py"
@@ -1677,7 +1662,8 @@ help:
 	@echo "... actionlib_msgs_generate_messages_nodejs"
 	@echo "... actionlib_msgs_generate_messages_lisp"
 	@echo "... tf2_msgs_generate_messages_lisp"
-	@echo "... Object_detect_gencfg"
+	@echo "... topic_tools_generate_messages_lisp"
+	@echo "... object_detection_node"
 .PHONY : help
 
 

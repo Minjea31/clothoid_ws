@@ -129,8 +129,6 @@
 /home/a/clothoid_ws/build/Object_detect/CMakeFiles/nodelet_generate_messages_py.dir
 /home/a/clothoid_ws/build/Object_detect/CMakeFiles/std_srvs_generate_messages_nodejs.dir
 /home/a/clothoid_ws/build/Object_detect/CMakeFiles/std_srvs_generate_messages_py.dir
-/home/a/clothoid_ws/build/Object_detect/CMakeFiles/object_detection_node.dir
-/home/a/clothoid_ws/build/Object_detect/CMakeFiles/topic_tools_generate_messages_lisp.dir
 /home/a/clothoid_ws/build/Object_detect/CMakeFiles/topic_tools_generate_messages_nodejs.dir
 /home/a/clothoid_ws/build/Object_detect/CMakeFiles/tf2_msgs_generate_messages_eus.dir
 /home/a/clothoid_ws/build/Object_detect/CMakeFiles/topic_tools_generate_messages_py.dir
@@ -146,7 +144,8 @@
 /home/a/clothoid_ws/build/Object_detect/CMakeFiles/actionlib_msgs_generate_messages_nodejs.dir
 /home/a/clothoid_ws/build/Object_detect/CMakeFiles/actionlib_msgs_generate_messages_lisp.dir
 /home/a/clothoid_ws/build/Object_detect/CMakeFiles/tf2_msgs_generate_messages_lisp.dir
-/home/a/clothoid_ws/build/Object_detect/CMakeFiles/Object_detect_gencfg.dir
+/home/a/clothoid_ws/build/Object_detect/CMakeFiles/topic_tools_generate_messages_lisp.dir
+/home/a/clothoid_ws/build/Object_detect/CMakeFiles/object_detection_node.dir
 /home/a/clothoid_ws/build/yolov8/CMakeFiles/install/strip.dir
 /home/a/clothoid_ws/build/yolov8/CMakeFiles/install/local.dir
 /home/a/clothoid_ws/build/yolov8/CMakeFiles/install.dir

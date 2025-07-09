@@ -156,7 +156,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /home/a/clothoid_ws/install/lib;/home/a/clothoid_ws/devel/lib;/opt/ros/noetic/lib)
+    foreach(path /home/a/clothoid_ws/install/lib;/opt/ros/noetic/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
@@ -179,7 +179,7 @@ foreach(library ${libraries})
   endif()
 endforeach()
 
-set(Object_detect_EXPORTED_TARGETS "Object_detect_gencfg")
+set(Object_detect_EXPORTED_TARGETS "")
 # create dummy targets for exported code generation targets to make life of users easier
 foreach(t ${Object_detect_EXPORTED_TARGETS})
   if(NOT TARGET ${t})

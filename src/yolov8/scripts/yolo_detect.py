@@ -76,7 +76,6 @@ class YoloDetectNode:
 
             # 디버그 출력
             class_name = self.class_names.get(cls_id, f"unknown({cls_id})")
-            rospy.loginfo(f"✅ 감지됨: ID={cls_id}, Class={class_name}")
 
             # (옵션) BBox 시각화
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)

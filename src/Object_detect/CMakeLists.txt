@@ -18,20 +18,12 @@ find_package(catkin REQUIRED COMPONENTS
   message_filters
   detect_msgs
   message_generation
-
-  ## 자경
-  rospy
-  dynamic_reconfigure
 )
 
 ## Find external libraries
 find_package(OpenCV REQUIRED)
 find_package(PCL REQUIRED)
 
-## 자경
-generate_dynamic_reconfigure_options(
-  cfg/LidarClustering.cfg
-)
 
 ###################################
 ## catkin specific configuration ##
@@ -84,12 +76,6 @@ target_link_libraries(object_detection_node
 #############
 ## Install ##
 #############
-
-## 자경
-catkin_install_python(PROGRAMS
-  scripts/euclidean_clustering.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
 
 install(TARGETS object_detection_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
