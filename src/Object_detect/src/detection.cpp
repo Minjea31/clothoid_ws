@@ -125,7 +125,8 @@ void Object_Detection::convert_msg(
         y1 = std::max(0.0, cy - hh);
         x2 = std::min<double>(camera_image.cols - 1, cx + hw);
         y2 = std::min<double>(camera_image.rows - 1, cy + hh);
-        if ((x2 - x1) < MIN_BBOX_EDGE_PX || (y2 - y1) < MIN_BBOX_EDGE_PX) continue;
+        if ((x2 - x1) < MIN_BBOX_EDGE_PX || (y2 - y1) < MIN_BBOX_EDGE_PX)
+            continue;
 
         std::vector<cv::Point2d> matched_px;
         pcl::PointCloud<pcl::PointXYZ>::Ptr local(new pcl::PointCloud<pcl::PointXYZ>);
@@ -139,25 +140,29 @@ void Object_Detection::convert_msg(
                                            lidar_points[i].z);
             }
         }
-        if (matched_px.size() < static_cast<size_t>(CLUSTER_MIN_SIZE)) continue;
+        if (matched_px.size() < static_cast<size_t>(CLUSTER_MIN_SIZE))
+            continue;
 
         const cv::Point2d c2d(cx, cy);
         pcl::PointCloud<pcl::PointXYZ>::Ptr roi(new pcl::PointCloud<pcl::PointXYZ>);
         for (size_t i = 0; i < matched_px.size(); ++i)
             if (cv::norm(matched_px[i] - c2d) <= ROI_RADIUS_PX)
                 roi->points.push_back(local->points[i]);
-        if (roi->points.size() < static_cast<size_t>(CLUSTER_MIN_SIZE)) continue;
+        if (roi->points.size() < static_cast<size_t>(CLUSTER_MIN_SIZE))
+            continue;
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr roi_ng(new pcl::PointCloud<pcl::PointXYZ>);
         {
             std::vector<cv::Point3f> tmp;
             tmp.reserve(roi->points.size());
-            for (const auto &p : *roi) tmp.emplace_back(p.x, p.y, p.z);
+            for (const auto &p : *roi)
+                tmp.emplace_back(p.x, p.y, p.z);
 
             const auto keep = remove_ground_ransac(tmp, GROUND_THRESH);
             if (keep.empty()) continue;
             roi_ng->points.reserve(keep.size());
-            for (int id : keep) roi_ng->points.push_back(roi->points[id]);
+            for (int id : keep)
+                roi_ng->points.push_back(roi->points[id]);
         }
 
         pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
@@ -283,7 +288,7 @@ std::vector<int> Object_Detection::remove_ground_ransac(
         double tc = z1 - ta*x1 - tb*y1;
 
         int in=0;
-        for (const auto &p: pts)
+        for (auto &p: pts)
             if (std::abs(p.z - (ta*p.x + tb*p.y + tc)) < th)
                 ++in;
         if (in > max_in) {
@@ -296,6 +301,7 @@ std::vector<int> Object_Detection::remove_ground_ransac(
             idx.push_back((int)i);
     return idx;
 }
+
 
 /* ===== publish 2D PointCloud ===== */
 void Object_Detection::publish_2D_pointcloud(

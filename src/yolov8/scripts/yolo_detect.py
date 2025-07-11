@@ -28,9 +28,9 @@ class YoloDetectNode:
         }
 
         # (3) 파라미터
-        source_topic  = rospy.get_param("~source",     "/camera/image_raw/compressed")
-        yaml_cfg      = rospy.get_param("~yaml_cfg",   "./best.yaml")
-        pt_weights    = rospy.get_param("~pt_weights", "./best.pt")
+        source_topic   = rospy.get_param("~source",     "/camera/image_raw/compressed")
+        yaml_cfg       = rospy.get_param("~yaml_cfg",   "./best.yaml")
+        pt_weights     = rospy.get_param("~pt_weights", "./best.pt")
         self.conf_thres = rospy.get_param("~confidence", 0.5)
 
         # (4) 퍼블리셔
@@ -48,7 +48,6 @@ class YoloDetectNode:
                          buff_size=2**24)
         rospy.loginfo(f"[yolo_detect_node] Subscribed to {source_topic}")
 
-    # ──────────────────────────────────────────────────────────────
     def callback(self, msg: CompressedImage):
         # 1) jpg → BGR
         frame = cv2.imdecode(np.frombuffer(msg.data, np.uint8), cv2.IMREAD_COLOR)
@@ -62,22 +61,25 @@ class YoloDetectNode:
         out = Yolo_Objects()
         out.header = Header(stamp=msg.header.stamp, frame_id=frame_id)
 
-        # 4) 결과 loop
-        for idx, box in enumerate(results.boxes):
-            cls_id        = int(box.cls.cpu().item())
+        # 4) 결과 loop (클래스 0만)
+        idx_counter = 0
+        for box in results.boxes:
+            cls_id = int(box.cls.cpu().item())
+            if cls_id != 0:
+                continue
+
             x1, y1, x2, y2 = map(int, box.xyxy[0].cpu().tolist())
 
             # 메시지 채우기
-            obj       = Objects()
-            obj.id    = idx
+            obj = Objects()
+            obj.id = idx_counter
             obj.Class = cls_id
             obj.x1, obj.y1, obj.x2, obj.y2 = x1, y1, x2, y2
             out.yolo_objects.append(obj)
+            idx_counter += 1
 
-            # 디버그 출력
+            # BBox 시각화
             class_name = self.class_names.get(cls_id, f"unknown({cls_id})")
-
-            # (옵션) BBox 시각화
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
             cv2.putText(frame, class_name, (x1, y1 - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
@@ -86,10 +88,9 @@ class YoloDetectNode:
         self.pub.publish(out)
 
         # 6) 실시간 창 출력
-        ##cv2.imshow(self.win_name, frame)
-        ##cv2.waitKey(1)
+        cv2.imshow(self.win_name, frame)
+        cv2.waitKey(1)
 
-    # ──────────────────────────────────────────────────────────────
     def spin(self):
         try:
             rospy.spin()
@@ -98,7 +99,6 @@ class YoloDetectNode:
         finally:
             cv2.destroyAllWindows()
 
-# ─────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     node = YoloDetectNode()
     node.spin()

@@ -33,9 +33,9 @@ static constexpr double GROUND_THRESH     = 0.0;
 static constexpr double CLUSTER_TOLERANCE = 0.4;
 static constexpr int    CLUSTER_MIN_SIZE  = 0;
 static constexpr int    CLUSTER_MAX_SIZE  = 100;
-static constexpr double ROI_RADIUS_PX     = 10.0;
+static constexpr double ROI_RADIUS_PX     = 50.0;
 static constexpr double MATCH_DIST        = 7.0;
-static constexpr int    TRACKER_MAX_MISS  = 15;
+static constexpr int    TRACKER_MAX_MISS  = 10;
 static constexpr int    MIN_BBOX_EDGE_PX  = 0;
 
 /* ===== Kalman Tracker ===== */
@@ -59,7 +59,7 @@ class Object_Detection
 private:
     ros::NodeHandle nh;
     ros::Publisher cloud_minjae_pub;   // publishes centroids on "/minjae"
-    ros::Publisher cloud_fillter_pub;  // publishes filtered 3D points on "/cloud_fillter"
+    ros::Publisher cloud_fillter_pub;  // publishes ground-removed points on "/cloud_fillter"
 
     std::string lidar_topic, camera_topic, yolo_topic, frame_name;
 
