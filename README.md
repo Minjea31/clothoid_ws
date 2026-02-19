@@ -45,7 +45,7 @@
     roslaunch detect_ws detect.launch 
 
 ---
-## iDAR와 카메라 융합 기반 객체 탐지 및 추적
+## LiDAR와 카메라 융합 기반 객체 탐지 및 추적
 
 이 패키지는 yolov8에서 detect한 bbox와 Livox Lidar와 클러스터링을 통해 객체의 (x,y)를 pub을 한다.
 
