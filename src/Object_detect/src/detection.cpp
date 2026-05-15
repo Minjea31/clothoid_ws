@@ -62,7 +62,7 @@ Object_Detection::Object_Detection(ros::NodeHandle *nodeHandle)
 
     nh.param("lidar_topic", lidar_topic, std::string("/livox/lidar"));
     nh.param("camera_topic", camera_topic, std::string("/camera/image_raw/compressed"));
-    nh.param("yolo_topic", yolo_topic, std::string("/yolov8_pub"));
+    nh.param("yolo_topic", yolo_topic, std::string("/yolo"));
     nh.param("frame_name", frame_name, std::string("livox_frame"));
 
     message_filters::Subscriber<sensor_msgs::PointCloud2> subL(nh, lidar_topic, 10);
