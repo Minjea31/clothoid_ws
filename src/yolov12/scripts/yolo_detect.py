@@ -1,8 +1,5 @@
-#!/home/cnu/anaconda3/envs/yolo/bin/python
-import logging
+#!/home/a/anaconda3/envs/clothoid/bin/python
 import sys
-import warnings
-from pathlib import Path
 
 import cv2
 import numpy as np
@@ -25,7 +22,7 @@ CLEAR_TERMINAL_ON_DETECTION = True
 WINDOW_NAME = "YOLOv12 BBox"
 DEFAULT_SOURCE_TOPIC = "/camera/image_raw/compressed"
 DEFAULT_PUBLISH_TOPIC = "/yolo"
-DEFAULT_CONFIDENCE = 0.1
+DEFAULT_CONFIDENCE = 0.5
 # publish할 클래스 목록을 여기에서 직접 설정합니다.
 # 0: ERP-42
 # 1: drum
@@ -41,17 +38,13 @@ CLASS_NAMES = {
 class YoloDetectNode:
     def __init__(self):
         rospy.init_node("yolo_detect_node")
-        package_dir = Path(__file__).resolve().parents[1]
-	# model의 pt와 yaml 입력
-        default_yaml_cfg = package_dir / "models" / "prune_0510.yaml"
-        default_pt_weights = package_dir / "models" / "prune_0510.pt"
 
         self.win_name = WINDOW_NAME
         self.class_names = CLASS_NAMES
         self.previous_status_line_count = 0
         source_topic = rospy.get_param("~source", DEFAULT_SOURCE_TOPIC)
-        yaml_cfg = rospy.get_param("~yaml_cfg", str(default_yaml_cfg))
-        pt_weights = rospy.get_param("~pt_weights", str(default_pt_weights))
+        yaml_cfg = self._require_param("~yaml_cfg")
+        pt_weights = self._require_param("~pt_weights")
         self.conf_thres = rospy.get_param("~confidence", DEFAULT_CONFIDENCE)
         self.publish_classes = set(int(class_id) for class_id in DEFAULT_PUBLISH_CLASSES)
 
@@ -73,6 +66,12 @@ class YoloDetectNode:
                          buff_size=2**24)
         rospy.loginfo(f"[yolo_detect_node] Subscribed to {source_topic}")
         rospy.loginfo(f"[yolo_detect_node] Publishing to {DEFAULT_PUBLISH_TOPIC}")
+
+    def _require_param(self, param_name):
+        if not rospy.has_param(param_name):
+            rospy.logfatal(f"[yolo_detect_node] Missing required param: {param_name}")
+            raise rospy.ROSInitException(f"Missing required param: {param_name}")
+        return rospy.get_param(param_name)
 
     def _print_detection_status(self, status_lines):
         if not status_lines:
