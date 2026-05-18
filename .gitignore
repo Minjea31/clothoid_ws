@@ -5,3 +5,4 @@ src/yolov12/yolov12/
 /bag/
 /build/
 /devel/
+/perception_ws/

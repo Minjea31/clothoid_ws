@@ -1,4 +1,5 @@
-#!/home/a/anaconda3/envs/clothoid/bin/python
+#!/home/cnu/anaconda3/envs/yolo/bin/python
+import os
 import sys
 
 import cv2
@@ -21,8 +22,12 @@ CLEAR_TERMINAL_ON_DETECTION = True
 
 WINDOW_NAME = "YOLOv12 BBox"
 DEFAULT_SOURCE_TOPIC = "/camera/image_raw/compressed"
-DEFAULT_PUBLISH_TOPIC = "/yolo"
+DEFAULT_PUBLISH_TOPIC = "/perception/camera/yolo"
 DEFAULT_CONFIDENCE = 0.5
+DEFAULT_FRAME_ID = "camera_link"
+PACKAGE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+DEFAULT_YAML_CFG = os.path.join(PACKAGE_DIR, "models", "0516_prune.yaml")
+DEFAULT_PT_WEIGHTS = os.path.join(PACKAGE_DIR, "models", "0516_prune.pt")
 # publish할 클래스 목록을 여기에서 직접 설정합니다.
 # 0: ERP-42
 # 1: drum
@@ -43,17 +48,20 @@ class YoloDetectNode:
         self.class_names = CLASS_NAMES
         self.previous_status_line_count = 0
         source_topic = rospy.get_param("~source", DEFAULT_SOURCE_TOPIC)
-        yaml_cfg = self._require_param("~yaml_cfg")
-        pt_weights = self._require_param("~pt_weights")
+        publish_topic = rospy.get_param("~output_topic", DEFAULT_PUBLISH_TOPIC)
+        yaml_cfg = rospy.get_param("~yaml_cfg", DEFAULT_YAML_CFG)
+        pt_weights = rospy.get_param("~pt_weights", DEFAULT_PT_WEIGHTS)
         self.conf_thres = rospy.get_param("~confidence", DEFAULT_CONFIDENCE)
+        self.frame_id = rospy.get_param("~frame_id", DEFAULT_FRAME_ID)
         self.publish_classes = set(int(class_id) for class_id in DEFAULT_PUBLISH_CLASSES)
 
-        self.pub = rospy.Publisher(DEFAULT_PUBLISH_TOPIC, Yolo_Objects, queue_size=1)
+        self.pub = rospy.Publisher(publish_topic, Yolo_Objects, queue_size=1)
 
         self.model = YOLO(yaml_cfg, task='detect').load(pt_weights)
         rospy.loginfo(f"[yolo_detect_node] YOLOv12 MODEL LOADED")
         rospy.loginfo(f"[yolo_detect_node] yaml_cfg: {yaml_cfg}")
         rospy.loginfo(f"[yolo_detect_node] pt_weights: {pt_weights}")
+        rospy.loginfo(f"[yolo_detect_node] frame_id: {self.frame_id}")
         rospy.loginfo(
             f"[yolo_detect_node] publish_classes: "
             f"{sorted(self.publish_classes) if self.publish_classes else []}"
@@ -65,13 +73,7 @@ class YoloDetectNode:
                          queue_size=1,
                          buff_size=2**24)
         rospy.loginfo(f"[yolo_detect_node] Subscribed to {source_topic}")
-        rospy.loginfo(f"[yolo_detect_node] Publishing to {DEFAULT_PUBLISH_TOPIC}")
-
-    def _require_param(self, param_name):
-        if not rospy.has_param(param_name):
-            rospy.logfatal(f"[yolo_detect_node] Missing required param: {param_name}")
-            raise rospy.ROSInitException(f"Missing required param: {param_name}")
-        return rospy.get_param(param_name)
+        rospy.loginfo(f"[yolo_detect_node] Publishing to {publish_topic}")
 
     def _print_detection_status(self, status_lines):
         if not status_lines:
@@ -97,7 +99,7 @@ class YoloDetectNode:
 
         results = self.model(frame, imgsz=(h0, w0), conf=self.conf_thres)[0]
 
-        frame_id = msg.header.frame_id if msg.header.frame_id else "camera_link"
+        frame_id = msg.header.frame_id if msg.header.frame_id else self.frame_id
         out = Yolo_Objects()
         out.header = Header(stamp=msg.header.stamp, frame_id=frame_id)
 
