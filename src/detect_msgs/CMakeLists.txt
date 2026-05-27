@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 add_message_files(
   FILES
+  detected_array.msg
+  detected_object.msg
   Objects.msg
   Yolo_Objects.msg
 )
@@ -29,4 +31,3 @@ catkin_package(
     geometry_msgs
     sensor_msgs
 )
-

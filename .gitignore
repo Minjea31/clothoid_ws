@@ -1,8 +1,6 @@
-src/yolov8/
-src/yolov12/yolov12/
-/devel/
 /log/
 /bag/
 /build/
 /devel/
-/perception_ws/
+/src/velodyne_detection
+/src/detect_msgs/
