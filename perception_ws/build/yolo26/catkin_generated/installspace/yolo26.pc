@@ -1,0 +1,8 @@
+prefix=/root/clothoid_ws/perception_ws/install
+
+Name: yolo26
+Description: Description of yolo26
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: rospy sensor_msgs cv_bridge geometry_msgs std_msgs detect_msgs

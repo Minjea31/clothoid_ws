@@ -1,0 +1,32 @@
+\subsubsection usage Usage
+\verbatim
+<node name="lidar_clustering" pkg="Object_detect" type="lidar_clustering">
+  <param name="PITCH_DEG" type="double" value="3.3" />
+  <param name="ROI_X_MIN" type="double" value="0.0" />
+  <param name="ROI_X_MAX" type="double" value="15.0" />
+  <param name="ROI_Y_MIN" type="double" value="-1.8" />
+  <param name="ROI_Y_MAX" type="double" value="1.8" />
+  <param name="ROI_Z_MIN" type="double" value="-2.0" />
+  <param name="ROI_Z_MAX" type="double" value="2.0" />
+  <param name="VOXEL_SIZE" type="double" value="0.1" />
+  <param name="DROR_MIN_NEIGHBORS" type="int" value="2" />
+  <param name="DROR_MIN_RADIUS" type="double" value="0.2" />
+  <param name="DROR_RADIUS_SCALE" type="double" value="0.4" />
+  <param name="DROR_MAX_RADIUS" type="double" value="0.3" />
+  <param name="GROUND_THRESH" type="double" value="0.25" />
+  <param name="EUCLIDEAN_CLUSTER_DIST" type="double" value="0.1" />
+  <param name="EUCLIDEAN_MIN_CLUSTER_SIZE" type="int" value="4" />
+  <param name="CLUSTER_MERGE_GAP" type="double" value="0.05" />
+  <param name="MAX_LENGTH" type="double" value="2.0" />
+  <param name="MAX_WIDTH" type="double" value="2.0" />
+  <param name="MAX_HEIGHT" type="double" value="1.5" />
+  <param name="MIN_LENGTH" type="double" value="0.1" />
+  <param name="MIN_WIDTH" type="double" value="0.1" />
+  <param name="MIN_HEIGHT" type="double" value="0.1" />
+  <param name="TRACKER_MAX_MISS" type="int" value="2" />
+  <param name="MATCH_DIST" type="double" value="1.5" />
+  <param name="EUCLIDEAN_BASE_DIST" type="double" value="0.08" />
+  <param name="EUCLIDEAN_DIST_SCALE" type="double" value="0.012" />
+</node>
+\endverbatim
+

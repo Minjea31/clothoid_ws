@@ -1,0 +1,2 @@
+detect_msgs:livox_camera_fusion:perception_bringup:yolo26
+-DCATKIN_DEVEL_PREFIX=/root/clothoid_ws/perception_ws/devel -DCMAKE_INSTALL_PREFIX=/root/clothoid_ws/perception_ws/install -G Unix Makefiles

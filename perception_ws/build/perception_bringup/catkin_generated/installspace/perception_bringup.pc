@@ -1,0 +1,8 @@
+prefix=/root/clothoid_ws/perception_ws/install
+
+Name: perception_bringup
+Description: Description of perception_bringup
+Version: 0.1.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
