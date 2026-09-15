@@ -1,16 +1,16 @@
-# Clothoid-R Perception — YOLO26 / TensorRT 세미나 버전
+# Clothoid-R Perception — YOLO26 / TensorRT
 
-Clothoid-R 자율주행 perception 스택 중 **카메라 YOLO 객체 검출** 파트를 세미나용으로 정리한 저장소입니다.
+Clothoid-R 자율주행 perception 스택 중 **카메라 YOLO 객체 검출** 파트를 정리한 저장소입니다.
 브랜치 `yolo26_version` 기준으로, 카메라 검출 노드가 **커스텀 YOLO26(Ultralytics 포크) + TensorRT 엔진** 으로 동작합니다.
 
 ## 저장소 구성
 
 ```
-Clothoid-R_seminar/
+clothoid_ws/
 ├─ perception_ws/                     # ROS Noetic catkin 워크스페이스
 │  ├─ src/
 │  │  ├─ detect_msgs/                 # 공통 perception 메시지 (Objects, Yolo_Objects, ...)
-│  │  ├─ yolo26/                      # 카메라 YOLO ROS 패키지 (이번 세미나 핵심)
+│  │  ├─ yolo26/                      # 카메라 YOLO ROS 패키지 (핵심 패키지)
 │  │  │  ├─ scripts/yolo_detect.py    #   카메라 검출 노드
 │  │  │  └─ models/best.engine        #   TensorRT 엔진 (정적 입력 1x3x640x640)
 │  │  ├─ livox_camera_fusion/         # LiDAR-카메라 융합 (C++)
@@ -20,7 +20,7 @@ Clothoid-R_seminar/
 └─ README.md
 ```
 
-> `perception_bringup/perception.launch` 는 `livox_clustering` 패키지를 참조하지만 이 세미나 체크아웃에는 포함돼 있지 않습니다. 여기서는 `yolo26` 노드 + `livox_camera_fusion` 위주로 봅니다.
+> `perception_bringup/perception.launch` 는 `livox_clustering` 패키지를 참조하지만 이 체크아웃에는 포함돼 있지 않습니다. 여기서는 `yolo26` 노드 + `livox_camera_fusion` 위주로 봅니다.
 
 ## 파이프라인
 
@@ -89,7 +89,7 @@ sys.path.insert(0, "/home/a/Clothoid-R/perception_ws/yolo26")   # ← YOLO26 포
 ```
 
 - shebang 을 그대로 쓰려면 conda 환경 이름을 `yolo` 로 만드는 게 가장 편합니다. 이름이 다르면 첫 줄을 새 경로로 바꿔야 합니다.
-- 이 저장소가 `~/Clothoid-R_seminar` 에 있어도 `sys.path` 는 `~/Clothoid-R` 를 가리키므로, 실제 사용하는 포크 위치에 맞춰 수정하세요.
+- 이 저장소 위치가 `~/Clothoid-R` 와 다르더라도 `sys.path` 는 `~/Clothoid-R` 를 가리키므로, 실제 사용하는 포크 위치에 맞춰 수정하세요.
 
 ---
 
@@ -222,7 +222,7 @@ yolo export model=best.pt format=engine imgsz=640 half=True
 ```
 
 빌드된 `best.engine` 을 `perception_ws/src/yolo26/models/` 에 둡니다.
-`best.pt` / `best.yaml` 원본은 이 세미나 저장소에 포함하지 않고 학습·프루닝 저장소에서 가져옵니다.
+`best.pt` / `best.yaml` 원본은 이 저장소에 포함하지 않고 학습·프루닝 저장소에서 가져옵니다.
 
 ---
 
