@@ -3,6 +3,8 @@
 Clothoid-R 자율주행 perception 스택 중 **카메라 YOLO 객체 검출** 파트를 정리한 저장소입니다.
 브랜치 `yolo26_version` 기준으로, 카메라 검출 노드가 **커스텀 YOLO26(Ultralytics 포크) + TensorRT 엔진** 으로 동작합니다.
 
+workspace에 대한 자세한 내용은 perception/README.md에 정리되어있습니다.
+
 ## 저장소 구성
 
 ```
