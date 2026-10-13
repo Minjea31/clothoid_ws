@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 """
-model/best.pt  ->  ONNX  ->  TensorRT 엔진(.engine)  2단계 변환 스크립트.
+src/yolo26/models/small.pt  ->  ONNX  ->  TensorRT 엔진(.engine)  2단계 변환 스크립트.
 
     [1] PyTorch(.pt) -> ONNX        : Ultralytics 의 model.export(format="onnx")
     [2] ONNX        -> TensorRT     : TensorRT Python API 로 엔진 직접 빌드
 
 직접 실행하는 용도. 예:
-    conda activate yolo
-    python TensorRT/build_trt_engine.py --fp16
-    python TensorRT/build_trt_engine.py \
-        --weights model/best.pt --imgsz 640 --fp16 --workspace 4 \
-        --onnx model/best.onnx --engine model/best.engine
-    python TensorRT/build_trt_engine.py --skip-engine          # [1]만 (ONNX까지)
-    python TensorRT/build_trt_engine.py --skip-onnx --fp16     # 기존 ONNX 재사용, [2]만
+    conda activate yolotrt
+    python yolo26/build_trt_engine.py --fp16
+    python yolo26/build_trt_engine.py \
+        --weights src/yolo26/models/small.pt --imgsz 640 --fp16 --workspace 4 \
+        --onnx src/yolo26/models/small.onnx --engine src/yolo26/models/small_fp16.engine
+    python yolo26/build_trt_engine.py --skip-engine          # [1]만 (ONNX까지)
+    python yolo26/build_trt_engine.py --skip-onnx --fp16     # 기존 ONNX 재사용, [2]만
 
 사전 준비:
     - torch 2.x + ultralytics 포크        : `cd yolo26 && pip install -r requirements.txt`
@@ -59,11 +59,11 @@ REPO_ROOT = find_repo_root()
 # --------------------------------------------------------------------------- #
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="best.pt -> ONNX -> TensorRT engine (2단계 변환)",
+        description="small.pt -> ONNX -> TensorRT engine (2단계 변환)",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     # 경로는 repo 루트 기준 상대경로. main() 에서 os.chdir(REPO_ROOT) 한다.
-    p.add_argument("--weights", default="src/yolo26/models/best.pt",
+    p.add_argument("--weights", default="src/yolo26/models/small.pt",
                    help="입력 가중치 (.pt) — repo 루트 기준")
     p.add_argument("--onnx", default=None,
                    help="ONNX 출력 경로 (기본: weights 와 같은 이름의 .onnx)")
@@ -132,7 +132,7 @@ def export_onnx(args: argparse.Namespace) -> Path:
     except Exception as exc:  # pragma: no cover
         sys.exit(
             "[에러] torch / ultralytics import 실패.\n"
-            "       `conda activate yolo` 후 실행하세요.\n"
+            "       `conda activate yolotrt` 후 실행하세요.\n"
             f"       (원인: {exc})"
         )
 
@@ -229,7 +229,7 @@ def build_engine(onnx_path: Path, args: argparse.Namespace) -> Path | None:
             "        1) CUDA_VISIBLE_DEVICES 가 '' 또는 '-1' 이면 →  unset CUDA_VISIBLE_DEVICES\n"
             "        2) 구버전 시스템 CUDA(/usr/local/cuda-10.x 등)가 LD_LIBRARY_PATH 에 있으면\n"
             "           그 셸에서 아래처럼 깨끗한 환경으로 실행:\n"
-            "             env -u LD_LIBRARY_PATH python TensorRT/build_trt_engine.py --skip-onnx" +
+            "             env -u LD_LIBRARY_PATH python yolo26/build_trt_engine.py --skip-onnx" +
             ("" if args.fp16 is False else " --fp16") + "\n"
             "        3) ROS(setup.bash) 를 source 한 셸이면 새 터미널에서 conda 환경만 활성화 후 재실행\n"
         )

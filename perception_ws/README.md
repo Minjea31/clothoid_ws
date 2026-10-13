@@ -1,204 +1,95 @@
-# 2026 Clothoid-R Perception
+# 2026 Clothoid-R Perception · YOLO26 TensorRT
 
-Clothoid-R 자율주행 시스템의 Perception ROS workspace.
+Clothoid-R의 ROS1 perception workspace입니다. 카메라에서 **ERP-42·drum·cone**을 검출하고 Livox LiDAR와 결합해 객체의 2D 중심 좌표를 발행합니다. 기본 모델은 **YOLO26s + TensorRT FP16**, 입력은 **batch 1 / 640 × 640**입니다.
 
-카메라와 LiDAR 기반 객체 검출, 클러스터링, 추적, 센서 퓨전 패키지 구성.
+RTX 3070 Laptop GPU에서 현재 보관 중인 bag으로 측정한 모델 추론 시간은 PyTorch FP32 **7.63ms → TensorRT FP16 2.00ms**, 약 **3.82배** 빨라졌습니다.
 
-## Team
+## 실제 검출 예시
 
-<table>
-<tr>
-<td align="center" width="180">
-  <a href="https://github.com/JaGyeong1024"><img src="https://avatars.githubusercontent.com/u/92356313?s=400&u=9df94c6f0e773e86773cb4fcc379f1204a7dcff7&v=4" width="100px;" alt=""/><br /><sub><b>구자경</b></sub></a><br />Perception Architecture
-</td>
-<td align="center" width="180">
-  <a href="https://github.com/Minjea31"><img src="https://avatars.githubusercontent.com/u/80508437?v=4" width="100px;" alt=""/><br /><sub><b>김민재</b></sub></a><br />Computer Vision, <br />DL Pruning
-</td>
-<td align="center" width="180">
-  <a href="https://github.com/namgyu021210"><img src="https://avatars.githubusercontent.com/u/203391491?v=4" width="100px;" alt=""/><br /><sub><b>이남규</b></sub></a><br />Attacker
-</td>
-</tr>
-</table>
+| ERP-42 + cone | cone | drum |
+|:---:|:---:|:---:|
+| ![실제 카메라 영상의 ERP-42와 cone 검출](docs/assets/erp42-cones.jpg) | ![실제 카메라 영상의 cone 검출](docs/assets/dense-cones.jpg) | ![실제 카메라 영상의 drum 검출](docs/assets/drum-historical.jpg) |
+
+## TensorRT 성능
+
+![동일 YOLO26s의 PyTorch FP32와 TensorRT FP16 실측 비교](docs/assets/performance.svg)
+
+| 백엔드 | 모델 추론 평균 | 디코딩+검출 평균 | 평균 시간 환산 FPS |
+|---|---:|---:|---:|
+| PyTorch FP32 | 7.63ms | 28.52ms | 35.06 |
+| TensorRT FP16 | 2.00ms | 23.00ms | 43.48 |
+
+동일 240프레임 × 3회, batch 1, 입력 640×640, 모델별 30회 워밍업 기준입니다. FPS는 디코딩+검출 시간의 역수이며 ROS 전송·fusion·화면 표시·MP4 인코딩은 제외합니다. mAP와 FP16 정확도 손실은 미측정입니다. [측정 조건·JSON·CSV](docs/performance.md)에 원본 결과를 남겼습니다.
 
 ## Pipeline
 
-| Pipeline | Input | Output | Package |
-|---|---|---|---|
-| Livox clustering | `/livox/lidar` | `/perception/livox/centroids` | `livox_clustering` |
-| Livox-camera fusion | `/livox/lidar`, `/camera/image_raw/compressed`, `/perception/camera/yolo` | `/perception/fusion/centroids` | `livox_camera_fusion` |
-| Velodyne BEV detection | `/velodyne_points` | `/perception/velodyne/centroids` | `velodyne_detection` |
+```mermaid
+flowchart LR
+    C[Camera CompressedImage] --> D[JPEG decode / LetterBox 640×640]
+    D --> T[YOLO26s TensorRT FP16]
+    T --> P[Confidence hysteresis / bbox suppression]
+    P --> Y["/perception/camera/yolo"]
+    C --> F[ApproximateTime sync ≤ 50ms]
+    Y --> F
+    L["/livox/lidar · PointCloud2"] --> F
+    F --> G[Projection / ROI / clustering]
+    G --> O["/perception/fusion/centroids"]
+```
 
-## Packages
+## TensorRT 엔진 생성
 
-| Package | Role |
+archive에는 원본 `.pt`를 포함하고 ONNX와 engine은 대상 GPU에서 다시 만듭니다.
+
+```bash
+python yolo26/build_trt_engine.py \
+  --weights src/yolo26/models/small.pt \
+  --imgsz 640 --batch 1 --fp16 --workspace 4
+```
+
+| 산출물 | 의미 |
 |---|---|
-| `perception_bringup` | 통합 launch |
-| `detect_msgs` | 공통 perception message |
-| `yolov12` | Camera YOLO detection |
-| `livox_clustering` | Livox point cloud clustering and tracking |
-| `livox_camera_fusion` | Livox-camera YOLO fusion |
-| `velodyne_detection` | Velodyne BEV YOLO detection and OC-SORT tracking |
+| `src/yolo26/models/small.onnx` | FP32 ONNX, 정적 입력 `[1,3,640,640]` |
+| `src/yolo26/models/small_fp16.engine` | FP16 연산을 허용한 TensorRT engine |
+| `src/yolo26/models/small_fp16.engine.layers.json` | 최적화 이후 레이어·정밀도·tactic 정보 |
 
-## Output Topics
+`--fp16`은 TensorRT 정밀도 옵션이며 `--half`는 ONNX 자체를 FP16으로 export하는 별도 옵션입니다. 기본 경로는 FP32 ONNX → TensorRT FP16입니다. [구현과 최적화 결과](docs/tensorrt.md)를 참고하세요.
 
-| Topic | Type |
-|---|---|
-| `/perception/livox/centroids` | `sensor_msgs/PointCloud` |
-| `/perception/fusion/centroids` | `sensor_msgs/PointCloud` |
-| `/perception/velodyne/centroids` | `sensor_msgs/PointCloud` |
-
-## Requirements
-
-- Ubuntu 20.04
-- ROS Noetic
-- Git
-- NVIDIA GPU/CUDA, optional
-
-## Setup
-
-ROS environment:
+## 실행
 
 ```bash
-source /opt/ros/noetic/setup.bash
+# YOLO26 + fusion
+roslaunch perception_bringup perception.launch \
+  yolo_python:="$(command -v python)"
+
+# 카메라 검출만
+roslaunch yolo26 yolo_detect.launch python:="$(command -v python)"
+
+# fusion만, 카메라 bbox는 외부 노드나 bag에서 공급
+roslaunch perception_bringup perception.launch run_yolo:=false
 ```
 
-System packages:
-
-```bash
-sudo apt update
-sudo apt install -y \
-  wget \
-  git \
-  build-essential \
-  cmake \
-  python3-pip \
-  python3-rosdep \
-  ros-noetic-cv-bridge \
-  ros-noetic-pcl-ros \
-  ros-noetic-pcl-conversions \
-  ros-noetic-message-filters \
-  ros-noetic-dynamic-reconfigure \
-  ros-noetic-visualization-msgs
-```
-
-rosdep:
-
-```bash
-sudo rosdep init
-rosdep update
-```
-
-Miniconda:
-
-```bash
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
-bash /tmp/miniconda.sh -b -p $HOME/anaconda3
-source $HOME/anaconda3/etc/profile.d/conda.sh
-conda init bash
-```
-
-Repository clone:
-
-```bash
-git clone https://github.com/JaGyeong1024/2026-Clothoid-R-Perception.git
-cd 2026-Clothoid-R-Perception
-```
-
-ROS dependency install:
-
-```bash
-rosdep install --from-paths src --ignore-src -r -y
-```
-
-System python3 perception deps (livox_clustering, velodyne_detection 노드용):
-
-```bash
-sudo python3 -m pip install --no-cache-dir \
-  --extra-index-url https://download.pytorch.org/whl/cu121 \
-  'typing-extensions==4.13.2' 'numpy>=1.24,<1.25' 'pillow>=10.0,<11.0' \
-  'scikit-learn>=1.3,<1.4' \
-  torch==2.4.1+cu121 torchvision==0.19.1+cu121 \
-  ultralytics==8.4.51 ultralytics-thop==2.0.19 opencv-python==4.13.0.92 \
-  filterpy==1.4.5 lap==0.5.12
-```
-
-(Dockerfile은 위 핀과 동일 — 컨테이너 기반으로 돌리면 이 단계 불필요)
-
-YOLO env (담당자 셋업 기준 — 타겟 PC `cnu`):
-
-`yolov12` 노드는 shebang(`#!/home/cnu/anaconda3/envs/yolo/bin/python`)으로 conda env를 직접 호출합니다. 이 env에 다음이 깔려 있어야 함:
-- yolov12 지원 ultralytics fork (담당자 PC `/home/cnu/clothoid-r/perception_ws/yolov12`)
-- `torch`, `numpy`, `opencv-python`, `rospkg`, `thop` — `yolo-requirements.txt` 참조
-
-OC-SORT:
-
-```bash
-sudo git clone https://github.com/noahcao/OC_SORT /opt/OC_SORT
-```
-
-Workspace build:
-
-```bash
-source /opt/ros/noetic/setup.bash
-catkin_make
-source devel/setup.bash
-```
-
-## Run
-
-세 명령어를 따로 띄움 (각각 터미널 분리):
-
-```bash
-roslaunch perception_bringup perception.launch         # fusion + livox_clustering
-rosrun velodyne_detection velodyne_bev_detection.py    # 시스템 python3
-rosrun yolov12 yolo_detect.py                          # conda yolo env via shebang
-```
-
-Sensor topic override:
+기본 launch는 GUI·프레임별 로그를 끕니다. 화면은 `show_detection_image:=true`, 검출 로그는 `print_detections:=true`로 켭니다.
 
 ```bash
 roslaunch perception_bringup perception.launch \
-  livox_lidar_topic:=/livox/lidar \
-  camera_image_topic:=/camera/image_raw/compressed
+  yolo_python:="$(command -v python)" \
+  engine_weights:="$(pwd)/src/yolo26/models/small_fp16.engine" \
+  camera_image_topic:=/camera/image_raw/compressed \
+  livox_lidar_topic:=/livox/lidar
 ```
 
-## Launch Arguments
+## 토픽과 검출 조건
 
-| Argument | Default |
-|---|---|
-| `livox_lidar_topic` | `/livox/lidar` |
-| `camera_image_topic` | `/camera/image_raw/compressed` |
-| `camera_yolo_topic` | `/perception/camera/yolo` |
-| `livox_centroid_topic` | `/perception/livox/centroids` |
-| `fusion_centroid_topic` | `/perception/fusion/centroids` |
+| 토픽 | 타입 | 용도 |
+|---|---|---|
+| `/camera/image_raw/compressed` | `sensor_msgs/CompressedImage` | 카메라 입력 |
+| `/livox/lidar` | `sensor_msgs/PointCloud2` | LiDAR 입력 |
+| `/perception/camera/yolo` | `detect_msgs/Yolo_Objects` | 원본 이미지 픽셀 bbox |
+| `/perception/fusion/centroids` | `sensor_msgs/PointCloud` | pitch 보정 좌표의 `(x,y,0)` 중심 |
+| `/perception/fusion/filtered_cloud` | `sensor_msgs/PointCloud2` | 디버깅용 포인트 |
 
-## Verification
+세 클래스 모두 publish합니다. 기본 진입 confidence **0.5**, 유지 confidence **0.3**, 이전 bbox 매칭 IoU **0.3**입니다. 추가 억제는 클래스별 NMS IoU **0.5**, containment IoA **0.8**입니다. YOLO 메시지의 `id`는 프레임 내 순번이며 지속적인 tracking ID가 아닙니다. confidence는 현재 메시지에 포함하지 않습니다.
 
-Node check:
-
-```bash
-rosnode list
-```
-
-Expected nodes:
-
-```text
-/yolo_detect_node
-/livox_camera_fusion
-/livox_euclidean_clustering
-/velodyne_bev_detection
-```
-
-Topic check:
-
-```bash
-rostopic list | grep perception
-```
-
-Output publisher check:
-
-```bash
-rostopic info /perception/livox/centroids
-rostopic info /perception/fusion/centroids
-rostopic info /perception/velodyne/centroids
-```
+- [YOLO 파라미터](src/yolo26/README.md)
+- [fusion 알고리즘·좌표·현재 제한](src/livox_camera_fusion/README.md)
+- [통합 launch 인자](src/perception_bringup/README.md)

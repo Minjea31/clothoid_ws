@@ -76,7 +76,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.4000000059604645
       Style: Flat Squares
-      Topic: /cloud_centroid
+      Topic: /perception/fusion/centroids
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -116,7 +116,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.20000000298023224
       Style: Flat Squares
-      Topic: /cloud_fillter
+      Topic: /perception/fusion/filtered_cloud
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true

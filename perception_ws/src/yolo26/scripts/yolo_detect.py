@@ -1,4 +1,4 @@
-#!/opt/miniconda3/envs/yolotrt/bin/python
+#!/usr/bin/env python3
 import os
 import sys
 import logging
@@ -11,7 +11,9 @@ from detect_msgs.msg import Objects, Yolo_Objects
 from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Header
 
-sys.path.insert(0, "/home/a/Clothoid-R/perception_ws/yolo26")
+# 배포 위치와 관계없이 workspace 안의 YOLO26 포크를 사용합니다.
+WORKSPACE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.insert(0, os.path.join(WORKSPACE_DIR, "yolo26"))
 from ultralytics import YOLO
 
 logging.getLogger("ultralytics").setLevel(logging.ERROR)
@@ -29,10 +31,10 @@ DEFAULT_SOURCE_TOPIC = "/camera/image_raw/compressed"
 DEFAULT_PUBLISH_TOPIC = "/perception/camera/yolo"
 DEFAULT_FRAME_ID = "camera_link"
 PACKAGE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-# TensorRT 엔진 파일(best.engine)을 직접 로딩해서 추론합니다.
-DEFAULT_ENGINE_WEIGHTS = os.path.join(PACKAGE_DIR, "models", "best.engine")
+# TensorRT FP16 엔진을 직접 로딩해서 추론합니다.
+DEFAULT_ENGINE_WEIGHTS = os.path.join(PACKAGE_DIR, "models", "small_fp16.engine")
 # 학습(imgsz=640)과 동일하게 추론 입력을 640x640 으로 맞춥니다.
-# best.engine 은 정적 입력 [1, 3, 640, 640] 로 빌드되어 있어 이 값이어야 합니다.
+# 기본 엔진은 정적 입력 [1, 3, 640, 640] 으로 빌드됩니다.
 DEFAULT_INFER_IMGSZ = 640
 DEFAULT_POSTPROCESS_NMS_IOU = 0.5
 DEFAULT_POSTPROCESS_CONTAINMENT_IOA = 0.8
@@ -202,6 +204,8 @@ class YoloDetectNode:
         rospy.init_node("yolo_detect_node")
 
         self.win_name = WINDOW_NAME
+        self.show_detection_image = rospy.get_param("~show_detection_image", SHOW_DETECTION_IMAGE)
+        self.print_detections = rospy.get_param("~print_detections", True)
         self.class_config = {
             class_id: config.copy()
             for class_id, config in DEFAULT_CLASS_CONFIG.items()
@@ -278,7 +282,7 @@ class YoloDetectNode:
         self.pub = rospy.Publisher(publish_topic, Yolo_Objects, queue_size=1)
 
         self.model = YOLO(engine_weights, task="detect")
-        rospy.loginfo(f"[yolo_detect_node] YOLOv12 MODEL LOADED")
+        rospy.loginfo(f"[yolo_detect_node] YOLO26 MODEL LOADED")
         rospy.loginfo(f"[yolo_detect_node] engine_weights: {engine_weights}")
         rospy.loginfo(f"[yolo_detect_node] infer imgsz: {self.infer_imgsz}")
         rospy.loginfo(f"[yolo_detect_node] frame_id: {self.frame_id}")
@@ -349,11 +353,15 @@ class YoloDetectNode:
 
     def callback(self, msg: CompressedImage):
         frame = cv2.imdecode(np.frombuffer(msg.data, np.uint8), cv2.IMREAD_COLOR)
+        if frame is None:
+            rospy.logwarn_throttle(5.0, "[yolo_detect_node] Could not decode compressed image")
+            return
 
         # 학습과 동일하게 640x640 으로 추론합니다. 원본 프레임(1920x1080)은
         # Ultralytics LetterBox 가 비율 유지 + 패딩으로 640x640 에 맞추고,
         # results.boxes.xyxy 는 다시 원본 해상도 좌표로 복원되어 나옵니다.
-        results = self.model(frame, imgsz=self.infer_imgsz, conf=self.conf_thres)[0]
+        results = self.model(frame, imgsz=self.infer_imgsz, conf=self.conf_thres,
+                             rect=False, verbose=False)[0]
 
         frame_id = msg.header.frame_id if msg.header.frame_id else self.frame_id
         out = Yolo_Objects()
@@ -433,16 +441,17 @@ class YoloDetectNode:
                 f"[yolo_detect_node] DETECT class={class_name} conf={conf:.2f}"
             )
 
-            if SHOW_DETECTION_IMAGE:
+            if self.show_detection_image:
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 cv2.putText(frame, f"{class_name} {conf:.2f}", (x1, y1 - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
 
-        self._print_detection_status(status_lines)
+        if self.print_detections:
+            self._print_detection_status(status_lines)
 
         self.pub.publish(out)
 
-        if SHOW_DETECTION_IMAGE:
+        if self.show_detection_image:
             cv2.imshow(self.win_name, frame)
             cv2.waitKey(1)
 
@@ -450,9 +459,9 @@ class YoloDetectNode:
         try:
             rospy.spin()
         except KeyboardInterrupt:
-            rospy.loginfo("Shutting down YOLOv12 viewer.")
+            rospy.loginfo("Shutting down YOLO26 viewer.")
         finally:
-            if SHOW_DETECTION_IMAGE:
+            if self.show_detection_image:
                 cv2.destroyAllWindows()
 
 if __name__ == "__main__":

@@ -1,0 +1,20 @@
+<launch>
+  <!-- Python은 현재 활성화한 conda 환경에서 선택합니다. -->
+  <arg name="python" default="python3"/>
+  <arg name="source" default="/camera/image_raw/compressed"/>
+  <arg name="output_topic" default="/perception/camera/yolo"/>
+  <arg name="engine_weights" default="$(find yolo26)/models/small_fp16.engine"/>
+  <arg name="imgsz" default="640"/>
+  <arg name="show_detection_image" default="false"/>
+  <arg name="print_detections" default="false"/>
+
+  <node pkg="yolo26" type="yolo_detect.py" name="yolo_detect_node"
+        launch-prefix="$(arg python)" output="screen">
+    <param name="source" value="$(arg source)"/>
+    <param name="output_topic" value="$(arg output_topic)"/>
+    <param name="engine_weights" value="$(arg engine_weights)"/>
+    <param name="imgsz" value="$(arg imgsz)"/>
+    <param name="show_detection_image" value="$(arg show_detection_image)"/>
+    <param name="print_detections" value="$(arg print_detections)"/>
+  </node>
+</launch>

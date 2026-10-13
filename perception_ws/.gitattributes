@@ -1,0 +1,26 @@
+# export-ignore also handles generated files that are already tracked in Git.
+*.csv text eol=lf
+*.svg text eol=lf
+/build export-ignore
+/devel export-ignore
+/install export-ignore
+/logs export-ignore
+/dist export-ignore
+/runs export-ignore
+/reports export-ignore
+/yolo_video/output export-ignore
+/benchmarks/runs export-ignore
+**/__pycache__ export-ignore
+**/*.pyc export-ignore
+**/*.pyo export-ignore
+**/*.egg-info export-ignore
+**/*.engine export-ignore
+**/*.onnx export-ignore
+**/*.engine.layers.json export-ignore
+**/*.bag export-ignore
+**/*.bag.active export-ignore
+/.catkin_workspace export-ignore
+# catkin_make recreates this machine-specific absolute symlink.
+/src/CMakeLists.txt export-ignore
+# Historical presentation prompt; current deployment docs live in docs/.
+/docs/notes/legacy-yolo26-seminar-prompt.md export-ignore

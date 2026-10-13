@@ -1,0 +1,116 @@
+{
+  "measured_at_utc": "2026-10-13T14:38:55.817107+00:00",
+  "environment": {
+    "os": "Linux-6.8.0-138-generic-x86_64-with-glibc2.31",
+    "python": "3.10.21",
+    "torch": "2.2.2+cu121",
+    "torch_cuda": "12.1",
+    "tensorrt": "10.7.0",
+    "opencv": "4.9.0",
+    "numpy": "1.26.4",
+    "ultralytics": "8.4.78",
+    "ultralytics_path": "/root/clothoid_ws/perception_ws/yolo26/ultralytics/__init__.py",
+    "gpu": "NVIDIA GeForce RTX 3070 Laptop GPU, 595.91.07",
+    "compute_capability": [
+      8,
+      6
+    ]
+  },
+  "input": {
+    "bag": "/root/clothoid_ws/bag/2026_3차_대회/bag0920/2026-09-20-16-57-33.bag",
+    "bag_bytes": 545564420,
+    "topic": "/camera/image_raw/compressed",
+    "frames": 120,
+    "camera_messages": 132,
+    "first_offset_s": 0.2862067222595215,
+    "last_offset_s": 2.6405816078186035,
+    "frame_shapes_hw": [
+      [
+        1080,
+        1920
+      ]
+    ],
+    "compressed_frames_sha256": "cf642865d96c83269f80aa2f6ce35ebcc82a84b79d4e1deab6ecfabf6e217af7"
+  },
+  "settings": {
+    "imgsz": 640,
+    "rect": false,
+    "batch": 1,
+    "device": 0,
+    "warmup": 30,
+    "repeats": 3,
+    "class_config": {
+      "0": {
+        "name": "ERP-42",
+        "publish": true,
+        "confidence": 0.5,
+        "keep_confidence": 0.3,
+        "track_iou": 0.3
+      },
+      "1": {
+        "name": "drum",
+        "publish": true,
+        "confidence": 0.5,
+        "keep_confidence": 0.3,
+        "track_iou": 0.3
+      },
+      "2": {
+        "name": "cone",
+        "publish": true,
+        "confidence": 0.5,
+        "keep_confidence": 0.3,
+        "track_iou": 0.3
+      }
+    },
+    "nms_iou": 0.5,
+    "containment_ioa": 0.8,
+    "area_weight": 0.1
+  },
+  "timing_scope": "in-memory JPEG decode + YOLO predict + deployment filters; excludes bag I/O, ROS, drawing, encoding and fusion",
+  "models": [
+    {
+      "file": "small.pt",
+      "bytes": 20324670,
+      "sha256": "13292fe892be11015a175c70bc4fbd227f0ea5c6c1a8637d49c90c8b7f0d07e8",
+      "samples": 360,
+      "pipeline_ms": {
+        "mean": 31.2211813024381,
+        "p50": 31.17981549439719,
+        "p95": 37.19912209926406
+      },
+      "inference_ms": {
+        "mean": 8.198323947241684,
+        "p50": 7.876199008023832,
+        "p95": 10.513598906254629
+      },
+      "pipeline_fps": 32.02953758581546,
+      "mean_detections": 0.0,
+      "predictor_imgsz": [
+        640,
+        640
+      ]
+    },
+    {
+      "file": "small_fp16.engine",
+      "bytes": 23034508,
+      "sha256": "636055988ce2cb0d2f2074eee4b0238668955f2f5db0a110f19311f5d0d66c2f",
+      "samples": 360,
+      "pipeline_ms": {
+        "mean": 25.235723725078667,
+        "p50": 25.31236800859915,
+        "p95": 30.411177909263643
+      },
+      "inference_ms": {
+        "mean": 1.9601241441301278,
+        "p50": 1.8739505030680448,
+        "p95": 2.2894944006111473
+      },
+      "pipeline_fps": 39.62636502499921,
+      "mean_detections": 0.0,
+      "predictor_imgsz": [
+        640,
+        640
+      ]
+    }
+  ]
+}

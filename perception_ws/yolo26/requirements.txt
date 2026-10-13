@@ -1,6 +1,6 @@
 # =====================================================================
 # 배포 / 환경 구축 (fresh machine)
-#   conda create -n yolo python=3.10 -y && conda activate yolo
+#   conda create -n yolotrt python=3.10 -y && conda activate yolotrt
 #   cd yolo26
 #   pip install -r requirements.txt          # 아래 목록 + 마지막 줄의 포크(-e .) 설치
 #   sudo apt-get install -y graphviz         # visualize_model.py 그래프 렌더용(dot)
@@ -46,3 +46,10 @@ tensorrt-cu12==10.7.0
 # --- 이 repo 의 커스텀 ultralytics 포크를 'ultralytics' 로 설치 (editable) ---
 # requirements.txt 가 있는 yolo26/ 안에서 pip install 을 실행해야 경로가 맞음
 -e .
+
+# ROS1 Python helpers and rosbag imports in the conda environment
+rospkg
+catkin-pkg
+empy==3.3.4
+pycryptodomex
+python-gnupg

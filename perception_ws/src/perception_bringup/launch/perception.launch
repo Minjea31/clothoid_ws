@@ -1,9 +1,5 @@
 <launch>
-  <!--
-    livox_camera_fusion(C++) + livox_euclidean_clustering(시스템 python3) 두 노드를 띄운다.
-    velodyne_detection / yolov12는 이 launch에 포함하지 않고 rosrun으로 별도 실행
-    (차량 운영 방식). yolov12만 shebang으로 conda yolo env 사용, 나머지 모두 시스템 환경.
-  -->
+  <!-- YOLO26 TensorRT + Livox-camera fusion. -->
 
   <!-- Sensor input topics -->
   <arg name="livox_lidar_topic"      default="/livox/lidar"/>
@@ -11,12 +7,26 @@
 
   <!-- Perception interface topics -->
   <arg name="camera_yolo_topic"      default="/perception/camera/yolo"/>
-  <arg name="livox_centroid_topic"   default="/perception/livox/centroids"/>
   <arg name="fusion_centroid_topic"  default="/perception/fusion/centroids"/>
 
   <!-- Runtime options -->
   <arg name="fusion_projection_config" default="$(find livox_camera_fusion)/config/projection.yaml"/>
-  <arg name="livox_clustering_config" default="$(find livox_clustering)/config/livox_clustering.yaml"/>
+  <arg name="run_yolo" default="true"/>
+  <arg name="yolo_python" default="python3"/>
+  <arg name="engine_weights" default="$(find yolo26)/models/small_fp16.engine"/>
+  <arg name="imgsz" default="640"/>
+  <arg name="show_detection_image" default="false"/>
+  <arg name="print_detections" default="false"/>
+
+  <include if="$(arg run_yolo)" file="$(find yolo26)/launch/yolo_detect.launch">
+    <arg name="python" value="$(arg yolo_python)"/>
+    <arg name="source" value="$(arg camera_image_topic)"/>
+    <arg name="output_topic" value="$(arg camera_yolo_topic)"/>
+    <arg name="engine_weights" value="$(arg engine_weights)"/>
+    <arg name="imgsz" value="$(arg imgsz)"/>
+    <arg name="show_detection_image" value="$(arg show_detection_image)"/>
+    <arg name="print_detections" value="$(arg print_detections)"/>
+  </include>
 
   <include file="$(find livox_camera_fusion)/launch/livox_camera_fusion.launch">
     <arg name="lidar_topic" value="$(arg livox_lidar_topic)"/>
@@ -26,9 +36,4 @@
     <arg name="projection_config" value="$(arg fusion_projection_config)"/>
   </include>
 
-  <include file="$(find livox_clustering)/launch/livox_clustering.launch">
-    <arg name="input_topic" value="$(arg livox_lidar_topic)"/>
-    <arg name="centroid_topic" value="$(arg livox_centroid_topic)"/>
-    <arg name="config" value="$(arg livox_clustering_config)"/>
-  </include>
 </launch>

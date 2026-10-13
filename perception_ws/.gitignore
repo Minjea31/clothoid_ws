@@ -1,0 +1,26 @@
+# Catkin / Python generated files
+/build/
+/devel/
+/install/
+/logs/
+/.catkin_workspace
+/src/CMakeLists.txt
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+
+# Rebuild TensorRT/ONNX on the deployment machine; retain source weights (.pt).
+*.engine
+*.onnx
+*.engine.layers.json
+
+# Recorded data and generated results
+*.bag
+*.bag.active
+/yolo_video/output/
+/benchmarks/runs/
+/dist/
+/runs/
+/reports/bag-audit/

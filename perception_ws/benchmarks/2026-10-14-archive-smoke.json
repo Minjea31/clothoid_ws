@@ -1,0 +1,24 @@
+{
+  "yolo_messages": 223,
+  "yolo_nonempty": 223,
+  "fusion_messages": 39,
+  "fusion_nonempty": 3,
+  "bag_player_exit": 0,
+  "fresh_archive_workspace": "/tmp/perception-release-check-20261014/perception_ws",
+  "scope": "4s bag sensor replay at 0.3x, isolated ROS master; confirms actual output, not performance",
+  "verified_steps": [
+    "archive contents exclusion check",
+    "catkin_make with system Python, no existing build/devel",
+    "roslaunch node resolution for full stack and fusion-only",
+    "ONNX checker and static IO verification",
+    "TensorRT 10.7 FP16 engine rebuild",
+    "isolated ROS bag sensor replay and output subscription"
+  ],
+  "source_sha256": {
+    "src/yolo26/scripts/yolo_detect.py": "d12ec6521255f5ee85446d5821ab4bf7ac6af953d2595f415e120128cfbbf79b",
+    "src/perception_bringup/launch/perception.launch": "259e0412dc87423f3923c278c1f0aaecb5a958d78111c4ba21719ee74f16338c",
+    "src/livox_camera_fusion/src/livox_camera_fusion.cpp": "298b425820e312b3e046aa37e4c7f4696f2f1fb4f43c2d2a42e6f22319744ab6",
+    "yolo26/build_trt_engine.py": "c61342206ed527bd69f195faba0936aa56a59142e0fef4b3a65238bd6b3e3a13",
+    "src/yolo26/models/small.pt": "13292fe892be11015a175c70bc4fbd227f0ea5c6c1a8637d49c90c8b7f0d07e8"
+  }
+}

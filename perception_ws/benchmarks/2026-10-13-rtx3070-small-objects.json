@@ -1,0 +1,116 @@
+{
+  "measured_at_utc": "2026-10-13T14:40:26.522745+00:00",
+  "environment": {
+    "os": "Linux-6.8.0-138-generic-x86_64-with-glibc2.31",
+    "python": "3.10.21",
+    "torch": "2.2.2+cu121",
+    "torch_cuda": "12.1",
+    "tensorrt": "10.7.0",
+    "opencv": "4.9.0",
+    "numpy": "1.26.4",
+    "ultralytics": "8.4.78",
+    "ultralytics_path": "/root/clothoid_ws/perception_ws/yolo26/ultralytics/__init__.py",
+    "gpu": "NVIDIA GeForce RTX 3070 Laptop GPU, 595.91.07",
+    "compute_capability": [
+      8,
+      6
+    ]
+  },
+  "input": {
+    "bag": "/root/clothoid_ws/bag/2026_3차_대회/bag0927/20260927_162055/record.bag",
+    "bag_bytes": 2180088444,
+    "topic": "/camera/image_raw/compressed",
+    "frames": 120,
+    "camera_messages": 3375,
+    "first_offset_s": 10.002033948898315,
+    "last_offset_s": 12.080958604812622,
+    "frame_shapes_hw": [
+      [
+        1080,
+        1920
+      ]
+    ],
+    "compressed_frames_sha256": "7f0c9fa60507eb4ca0ea8cfb7b9826fea61bed7539e9ec08103d819bb2fed1fb"
+  },
+  "settings": {
+    "imgsz": 640,
+    "rect": false,
+    "batch": 1,
+    "device": 0,
+    "warmup": 30,
+    "repeats": 3,
+    "class_config": {
+      "0": {
+        "name": "ERP-42",
+        "publish": true,
+        "confidence": 0.5,
+        "keep_confidence": 0.3,
+        "track_iou": 0.3
+      },
+      "1": {
+        "name": "drum",
+        "publish": true,
+        "confidence": 0.5,
+        "keep_confidence": 0.3,
+        "track_iou": 0.3
+      },
+      "2": {
+        "name": "cone",
+        "publish": true,
+        "confidence": 0.5,
+        "keep_confidence": 0.3,
+        "track_iou": 0.3
+      }
+    },
+    "nms_iou": 0.5,
+    "containment_ioa": 0.8,
+    "area_weight": 0.1
+  },
+  "timing_scope": "in-memory JPEG decode + YOLO predict + deployment filters; excludes bag I/O, ROS, drawing, encoding and fusion",
+  "models": [
+    {
+      "file": "small.pt",
+      "bytes": 20324670,
+      "sha256": "13292fe892be11015a175c70bc4fbd227f0ea5c6c1a8637d49c90c8b7f0d07e8",
+      "samples": 360,
+      "pipeline_ms": {
+        "mean": 36.45803586437574,
+        "p50": 34.57849850383354,
+        "p95": 55.977970900858075
+      },
+      "inference_ms": {
+        "mean": 8.5864404665497,
+        "p50": 7.869126500736456,
+        "p95": 12.378691299818462
+      },
+      "pipeline_fps": 27.428795224186242,
+      "mean_detections": 12.683333333333334,
+      "predictor_imgsz": [
+        640,
+        640
+      ]
+    },
+    {
+      "file": "small_fp16.engine",
+      "bytes": 23034508,
+      "sha256": "636055988ce2cb0d2f2074eee4b0238668955f2f5db0a110f19311f5d0d66c2f",
+      "samples": 360,
+      "pipeline_ms": {
+        "mean": 25.785852891931427,
+        "p50": 25.597741499950644,
+        "p95": 30.774307704996318
+      },
+      "inference_ms": {
+        "mean": 2.0880003803338494,
+        "p50": 1.9041470004594885,
+        "p95": 3.5901916984585114
+      },
+      "pipeline_fps": 38.780954975233996,
+      "mean_detections": 12.666666666666666,
+      "predictor_imgsz": [
+        640,
+        640
+      ]
+    }
+  ]
+}
